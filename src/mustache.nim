@@ -1,7 +1,7 @@
 # This is just an example to get you started. A typical hybrid package
 # uses this file as the main entry point of the application.
 
-import tables, sequtils, sugar
+import tables, sequtils, sugar, strutils, strformat
 
 import mustachepkg/submodule
 
@@ -31,11 +31,11 @@ type
     closer*: string
 
   Token* = ref object of RootObj
-    doc*: string
     pos*: int
     size*: int
 
   Text* = ref object of Token
+    doc*: string
 
   EscapedTag* = ref object of Token
     name*: string
@@ -45,12 +45,13 @@ type
     name*: string
     tag*: string
 
-  Section* = ref object of Token
+  SectionOpen* = ref object of Token
     name*: string
     tag*: string
     inverted*: bool
-    children*: seq[Token]
     delimiter*: Delimiter
+
+  SectionClose* = ref object of Token
 
   Partial* = ref object of Token
 
@@ -137,6 +138,15 @@ proc castBool*(value: Value): bool =
   of vkTable: value.vTable.len != 0
   else: true
 
+method `$`(token: Token): string {.base.} = "<token>"
+
+method `$`(token: Text): string = fmt"<text ""{token.doc}"">"
+
+proc parse*(tpl: string): seq[Token] =
+  result = @[]
+  result.add(Text(doc: tpl))
+
+
 when isMainModule:
   let ctx = Context(values: initTable[string,Value]())
   ctx["name"] = 1
@@ -144,4 +154,4 @@ when isMainModule:
   ctx["seq"] = @[1,2,3]
   ctx["seq"] = @["a","b","c"]
   ctx["table"] = {"a": "b"}.toTable
-  echo("hello world")
+  echo("hello world".parse)
