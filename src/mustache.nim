@@ -3,7 +3,7 @@
 
 import tables, sequtils, sugar, strutils, strformat
 
-import mustachepkg/submodule
+import mustachepkg/values
 
 type
   MustacheErrorKind* {.pure.}= enum
@@ -27,8 +27,8 @@ type
     else: discard
 
   Delimiter* = ref object
-    opener*: string
-    closer*: string
+    open*: string
+    close*: string
 
   Token* = ref object of RootObj
     pos*: int
@@ -69,83 +69,52 @@ type
     delimiter*: Delimiter
     root*: Token
 
-type
-  ValueKind* {.pure.}= enum
-    vkInt,
-    vkFloat,
-    vkString,
-    vkBool,
-    vkProc,
-    vkSeq,
-    vkTable
-
-  Value* = object
-    case kind*: ValueKind
-    of vkInt: vInt: int
-    of vkFloat: vFloat: float
-    of vkString: vString: string
-    of vkBool: vBool: bool
-    of vkProc: vProc: proc()
-    of vkSeq: vSeq: seq[Value]
-    of vkTable: vTable: ref Table[string, Value]
-
-  Context* = ref object
-    values: Table[string, Value]
-
-proc castValue*(value: int): Value =
-  Value(kind: vkInt, vInt: value)
-
-proc castValue*(value: float): Value =
-  Value(kind: vkFloat, vFloat: value)
-
-proc castValue*(value: string): Value =
-  Value(kind: vkString, vString: value)
-
-proc castValue*(value: bool): Value =
-  Value(kind: vkBool, vBool: value)
-
-proc castValue*[T](value: Table[string, T]): Value =
-  let newValue = new(Table[string, Value])
-  for k, v in value.pairs:
-    newValue[k] = v.castValue
-  Value(kind: vkTable, vTable: newValue)
-
-proc castValue*[T](value: seq[T]): Value =
-  Value(kind: vkSeq, vSeq: value.map(castValue))
-
-proc `[]=`*[T](ctx: Context, key: string, value: T) =
-  ## Combine the key with a value within the given ctx.
-  ## Example:
-  ##
-  ##   ctx["name"] = 1
-  ##   ctx["name"] = "string"
-  ##   ctx["name"] = @[1,2,3]
-  ctx.values[key] = value.castValue
-
-proc `[]`*(ctx: Context, key: string): Value =
-  if ctx.values.contains(key):
-    result = ctx.values[key]
-  else:
-    result = castValue("")
-
-proc castBool*(value: Value): bool =
-  case value.kind
-  of vkInt: value.vInt != 0
-  of vkFloat: value.vFloat != 0.0
-  of vkString: value.vString != ""
-  of vkBool: value.vBool
-  of vkSeq: value.vSeq.len != 0
-  of vkTable: value.vTable.len != 0
-  else: true
-
 method `$`(token: Token): string {.base.} = "<token>"
 
 method `$`(token: Text): string = fmt"<text ""{token.doc}"">"
 
+type
+  LexState* {.pure.} = enum
+    lsText,
+    lsTag,
+    lsEof
+
+proc peeks*(s: string, start: int): string = s[start ..< s.len]
+
+proc openDelimiter*(s: string): int =
+  ## Open delimiter eats string `s` for up to 2 chars if s starts with `{{`.
+  ##
+  ## Example:
+  ##
+  ##   echo("{{ abc }}".openDelimiter) # 2
+  if s.startsWith("{{"): 2 else: 0
+
+proc closeDelimiter*(s: string): int =
+  ## Close delimiter eats string `s` for up to 2 chars if s starts with `}}`.
+  ##
+  ## Example:
+  ##
+  ##   echo("}}".closeDelimiter) # 2
+  if s.startsWith("}}"): 2 else: 0
+
+proc text*(s: string, delimiter: Delimiter): int =
+  ## Anything that does not conflict with open or close counts as text.
+  ## Text eats string `s` until an open or close delimiter is detected.
+  ##
+  ## Example:
+  ##
+  ##   echo("text {{ abc }}".text(delim)) # 5
+  result = 0
+  var idx = 0
+  while idx < s.len:
+    if s.peeks(idx).openDelimiter != 0 or s.peeks(idx).closeDelimiter != 0:
+      break
+    result += 1
+    idx += 1
+
 proc parse*(tpl: string): seq[Token] =
   result = @[]
   result.add(Text(doc: tpl))
-
 
 when isMainModule:
   let ctx = Context(values: initTable[string,Value]())
@@ -155,3 +124,8 @@ when isMainModule:
   ctx["seq"] = @["a","b","c"]
   ctx["table"] = {"a": "b"}.toTable
   echo("hello world".parse)
+  echo("{{ abc }}".openDelimiter)
+  echo("}}".closeDelimiter)
+  let delim = Delimiter(open: "{{", close: "}}")
+  echo("text {{ abc }}".text(delim))
+
