@@ -11,6 +11,9 @@ method render*(token: Text, ctx: Context): string =
 method render*(token: EscapedTag, ctx: Context): string =
   ctx[token.key.strip].castStr
 
+method render*(token: UnescapedTag, ctx: Context): string =
+  ctx[token.key.strip].castStr
+
 proc render*(tokens: seq[Token], ctx: Context): string =
   let stack: seq[Token] = @[]
   for token in tokens:

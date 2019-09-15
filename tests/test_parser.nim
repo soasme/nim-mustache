@@ -24,16 +24,10 @@ test "parse comment":
   check "{{!comment}}".parse.render(newContext()) == ""
 
 test "parse unescaped":
-  let r = "{{& name}}".parse
-  check r.len == 1
-  check r[0] of UnescapedTag
-  check UnescapedTag(r[0]).key.strip == "name"
-
-test "parse triple mustache":
-  let r = "{{{ name }}}".parse
-  check r.len == 1
-  check r[0] of UnescapedTag
-  check UnescapedTag(r[0]).key.strip == "name"
+  let ctx = newContext()
+  ctx["name"] = "&mustache"
+  check "{{& name}}".parse.render(ctx) == "&mustache"
+  check "{{{ name }}}".parse.render(ctx) == "&mustache"
 
 test "parse section open":
   let r = "{{# start }}".parse
