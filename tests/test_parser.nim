@@ -78,8 +78,14 @@ test "parse section close":
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"
   let r = parse(s)
-  echo(r)
   check r.len == 2
+
+test "parse partial":
+  let s = "{{> key }}"
+  let r = parse(s)
+  check r.len == 1
+  check r[0] of Partial
+  check Partial(r[0]).key.strip == "key"
 
 #test "parse set delimiter":
   #let src = @["= <% %> =", "=<% %>="]
@@ -90,13 +96,3 @@ test "parse set elimiter - changed":
     #check r == s.len
     #check delim.open == "<%"
     #check delim.close == "%>"
-
-#test "parse partial":
-  #let s = "> key "
-  #var idx = 0
-  #var token: Token
-  #let r = s.scanPartial(idx, token)
-  #check r == s.len
-  #check token != nil
-  #check token of Partial
-  #check Partial(token).key == "key"

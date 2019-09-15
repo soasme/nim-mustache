@@ -46,24 +46,6 @@ proc setDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token): int
   else:
     result = 0
 
-proc scanPartial*(s: string, idx: var int, token: var Token): int =
-  var key: string
-  let start = idx
-
-  if scanp(
-    s, idx,
-    (
-      '>',
-      *{' ', '\t'},
-      +(~{' ', '}'} -> key.add($_)),
-      *{' ', '\t'},
-    )
-  ):
-    token = Partial(key: key)
-    result = idx - start
-  else:
-    result = start
-
 proc scanTagOpen*(s: string, idx: int, delim: Delimiter): int =
   if s.peeks(idx).startsWith(delim.open): delim.open.len else: 0
 
@@ -183,6 +165,24 @@ proc scanSectionClose*(s: string, idx: int, delim: Delimiter, token: var Token):
   else:
     result = 0
 
+proc scanPartial*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  let start = idx
+  var pos = idx
+  var key: string
+
+  if scanp(
+    s, pos,
+    (
+      '>',
+      *{' ', '\t'},
+      scanTagKey($input, $index, delim, key)
+    )
+  ):
+    token = Partial(key: key)
+    result = pos - start
+  else:
+    result = 0
+
 proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
   var size: int
 
@@ -208,6 +208,10 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
 
   # section close
   size = scanSectionClose(s, idx, delim, token)
+  if size != 0: return size
+
+  # partial
+  size = scanPartial(s, idx, delim, token)
   if size != 0: return size
 
   # variable
