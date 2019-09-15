@@ -29,6 +29,7 @@ type
   SectionClose* = ref object of Token
 
   Partial* = ref object of Token
+    key*: string
 
   SetDelimiter* = ref object of Token
     delimiter*: Delimiter
