@@ -135,6 +135,35 @@ proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token
   else:
     result = 0
 
+proc scanInverted*(s: string, idx: int, inverted: var bool): int =
+  case s[idx]
+  of '#':
+    inverted = false
+    result = 1
+  of '^':
+    inverted = true
+    result = 1
+  else:
+    result = 0
+
+proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  let start = idx
+  var pos = idx
+  var inverted: bool
+  var key: string
+
+  if scanp(
+    s, pos,
+    (
+      scanInverted($input, $index, inverted),
+      *{' ', '\t'},
+      scanTagKey($input, $index, delim, key)
+    )
+  ):
+    token = SectionOpen(key: key, inverted: inverted)
+    result = pos - start
+  else:
+    result = 0
 
 proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
   var size: int
@@ -153,6 +182,10 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
 
   # unescaped tag - {{{triple mustache}}}
   size = scanTripleMustache(s, idx, delim, token)
+  if size != 0: return size
+
+  # section open
+  size = scanSectionOpen(s, idx, delim, token)
   if size != 0: return size
 
   # variable

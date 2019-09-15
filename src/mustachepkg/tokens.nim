@@ -19,12 +19,11 @@ type
     key*: string
 
   SectionOpen* = ref object of Token
-    name*: string
-    tag*: string
+    key*: string
     inverted*: bool
-    delimiter*: Delimiter
 
   SectionClose* = ref object of Token
+    key*: string
 
   Partial* = ref object of Token
     key*: string

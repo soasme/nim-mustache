@@ -55,6 +55,20 @@ test "parse triple mustache":
   check r[0] of UnescapedTag
   check UnescapedTag(r[0]).key.strip == "name"
 
+test "parse section open":
+  let r = "{{# start }}".parse
+  check r.len == 1
+  check r[0] of SectionOpen
+  check SectionOpen(r[0]).key.strip == "start"
+  check SectionOpen(r[0]).inverted == false
+
+test "parse section open - inverted":
+  let r = "{{^ start }}".parse
+  check r.len == 1
+  check r[0] of SectionOpen
+  check SectionOpen(r[0]).key.strip == "start"
+  check SectionOpen(r[0]).inverted == true
+
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"
   let r = parse(s)
