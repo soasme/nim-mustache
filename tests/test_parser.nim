@@ -39,6 +39,11 @@ test "parse tag key":
   check token == "abcde "
   check r == 6
 
+test "parse comment":
+  let r = "{{!comment}}".parse
+  echo(r)
+  check r.len == 0
+
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"
   let r = parse(s)

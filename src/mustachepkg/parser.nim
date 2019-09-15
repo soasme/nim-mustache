@@ -80,11 +80,31 @@ proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int
     token = EscapedTag(key: key)
     result = size
 
+proc scanComment*(s: string, idx: int, delim: Delimiter): int =
+  let start = idx
+  var pos = idx
+  var comment: string
+
+  if scanp(
+    s, pos,
+    (
+      '!',
+      scanTagKey(s, idx+1, delim, comment)
+    )
+  ):
+    result = pos - start
+  else:
+    result = 0
+
 proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
   var size: int
 
   # set delimiter
   size = setDelimiter(s, idx, delim, token)
+  if size != 0: return size
+
+  # comment
+  size = scanComment(s, idx, delim)
   if size != 0: return size
 
   # variable
@@ -98,7 +118,7 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
   let opener = delim.open
   let closer = delim.close
 
-  if not scanp(
+  if scanp(
     s, idx,
     (
       scanTagOpen($input, $index, delim),
@@ -108,10 +128,10 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
       scanTagClose($input, $index, delim),
     )
   ):
+    result = idx-start
+  else:
     idx = start
-    return 0
-
-  return idx-start
+    result = 0
 
 proc scanm(s: string, idx: var int, delim: var Delimiter, token: var Token): bool =
   ## Scan mustache tokens from a given string `s` starting from `idx`.
@@ -130,8 +150,10 @@ proc parse*(s: string): seq[Token] =
 
   while idx < s.len:
     if scanm(s, idx, delim, token):
-      result.add(token)
-      if token of SetDelimiter: delim = SetDelimiter(token).delimiter
+      if token != nil:
+        result.add(token)
+      elif token of SetDelimiter:
+        delim = SetDelimiter(token).delimiter
     else:
       # if no mustache rule is matched, it eats 1 char as a Text at a time.
       result.add(Text(doc: fmt"{s[idx]}"))
