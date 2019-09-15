@@ -1,29 +1,18 @@
 import unittest, strscans, streams, strutils
 
 import mustachepkg/tokens
+import mustachepkg/values
 import mustachepkg/parser
+import mustachepkg/render
 
 test "parse text - normal text":
-  let r = parse("parse text")
-  check r.len == 1
-  check r[0] of Text
-  check Text(r[0]).doc == "parse text"
+  check "parse text".parse.render(newContext()) == "parse text"
 
 test "parse text - unopened tag":
-  let r = parse("parse text }}")
-  check r.len == 1
-  check r[0] of Text
-  check Text(r[0]).doc == "parse text }}"
+  check "parse text }}".parse.render(newContext()) == "parse text }}"
 
 test "parse text - unbalanced tag":
-  let r = parse("parse text {{ xyz")
-  check r.len == 3
-  check r[0] of Text
-  check Text(r[0]).doc == "parse text "
-  check r[1] of Text
-  check Text(r[1]).doc == "{"
-  check r[2] of Text
-  check Text(r[2]).doc == "{ xyz"
+  check "parse text {{ xyz".parse.render(newContext()) == "parse text {{ xyz"
 
 test "parse tag - unescaped":
   for s in @["{{key}}", "{{ key  }}"]:
