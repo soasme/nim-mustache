@@ -22,13 +22,14 @@ proc scanText*(s: string, idx: var int, delim: Delimiter, token: var Token): int
 proc scanTagKey*(s: string, idx: int, delim: Delimiter, token: var string): int =
   s.parseUntil(token, delim.close, start=idx)
 
-proc setDelimiter*(s: string, idx: var int, delim: var Delimiter): int =
+proc setDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token): int =
   var open: string
   var close: string
+  var pos = idx
   let start = idx
 
   if scanp(
-    s, idx,
+    s, pos,
     (
       '=',                            # starts from a single char =
       *{' ', '\t'},
@@ -39,12 +40,13 @@ proc setDelimiter*(s: string, idx: var int, delim: var Delimiter): int =
       '=',                            # ends at a single char =
     )
   ):
-    delim = Delimiter(open: open, close: close)
-    result = idx - start
+    let newDelim = Delimiter(open: open, close: close)
+    token = SetDelimiter(delimiter: newDelim)
+    result = pos - start
   else:
-    result = start
+    result = 0
 
-proc partial*(s: string, idx: var int, token: var Token): int =
+proc scanPartial*(s: string, idx: var int, token: var Token): int =
   var key: string
   let start = idx
 
@@ -68,21 +70,40 @@ proc scanTagOpen*(s: string, idx: int, delim: Delimiter): int =
 proc scanTagClose*(s: string, idx: int, delim: Delimiter): int =
   if s.peeks(idx).startsWith(delim.close): delim.close.len else: 0
 
-proc scanTagContent*(s: string, idx: int, delim: Delimiter, key: var string): int =
-  return scanTagKey(s, idx, delim, key)
+proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  var key: string
+  let start = idx
+  let size = scanTagKey(s, idx, delim, key)
+  if size == 0:
+    result = 0
+  else:
+    token = EscapedTag(key: key)
+    result = size
+
+proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
+  var size: int
+
+  # set delimiter
+  size = setDelimiter(s, idx, delim, token)
+  if size != 0: return size
+
+  # variable
+  size = scanVariable(s, idx, delim, token)
+  if size != 0: return size
+
+  return 0
 
 proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): int =
   let start = idx
   let opener = delim.open
   let closer = delim.close
-  var key: string
 
   if not scanp(
     s, idx,
     (
       scanTagOpen($input, $index, delim),
       *{' ', '\t'},
-      scanTagContent($input, $index, delim, key),
+      scanTagContent($input, $index, delim, token),
       *{' ', '\t'},
       scanTagClose($input, $index, delim),
     )
@@ -90,7 +111,6 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
     idx = start
     return 0
 
-  token = EscapedTag(key: key)
   return idx-start
 
 proc scanm(s: string, idx: var int, delim: var Delimiter, token: var Token): bool =
@@ -111,6 +131,7 @@ proc parse*(s: string): seq[Token] =
   while idx < s.len:
     if scanm(s, idx, delim, token):
       result.add(token)
+      if token of SetDelimiter: delim = SetDelimiter(token).delimiter
     else:
       # if no mustache rule is matched, it eats 1 char as a Text at a time.
       result.add(Text(doc: fmt"{s[idx]}"))

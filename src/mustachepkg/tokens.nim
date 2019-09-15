@@ -1,4 +1,4 @@
-import strformat
+import strformat, strutils
 
 type
   Delimiter* = ref object
@@ -36,3 +36,8 @@ type
 method `$`*(token: Token): string {.base.} = "<token>"
 
 method `$`*(token: Text): string = fmt"<text ""{token.doc}"">"
+
+method `$`*(token: EscapedTag): string = fmt"<variable {token.key.strip}>"
+
+method `$`*(token: SetDelimiter): string =
+  fmt"<set_delimiter {token.delimiter.open} {token.delimiter.close}>"

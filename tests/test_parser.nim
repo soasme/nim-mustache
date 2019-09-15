@@ -39,22 +39,28 @@ test "parse tag key":
   check token == "abcde "
   check r == 6
 
-test "parse set delimiter":
-  let src = @["= <% %> =", "=<% %>="]
-  for s in src:
-    var delim = Delimiter(open: "{{", close: "}}")
-    var idx = 0
-    let r = setDelimiter(s, idx, delim)
-    check r == s.len
-    check delim.open == "<%"
-    check delim.close == "%>"
+test "parse set elimiter - changed":
+  let s = "{{=<% %>=}}<% key %>"
+  let r = parse(s)
+  echo(r)
+  check r.len == 2
 
-test "parse partial":
-  let s = "> key "
-  var idx = 0
-  var token: Token
-  let r = s.partial(idx, token)
-  check r == s.len
-  check token != nil
-  check token of Partial
-  check Partial(token).key == "key"
+#test "parse set delimiter":
+  #let src = @["= <% %> =", "=<% %>="]
+  #for s in src:
+    #var delim = Delimiter(open: "{{", close: "}}")
+    #var idx = 0
+    #let r = setDelimiter(s, idx, delim)
+    #check r == s.len
+    #check delim.open == "<%"
+    #check delim.close == "%>"
+
+#test "parse partial":
+  #let s = "> key "
+  #var idx = 0
+  #var token: Token
+  #let r = s.scanPartial(idx, token)
+  #check r == s.len
+  #check token != nil
+  #check token of Partial
+  #check Partial(token).key == "key"
