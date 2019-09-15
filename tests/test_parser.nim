@@ -69,6 +69,12 @@ test "parse section open - inverted":
   check SectionOpen(r[0]).key.strip == "start"
   check SectionOpen(r[0]).inverted == true
 
+test "parse section close":
+  let r = "{{/section}}".parse
+  check r.len == 1
+  check r[0] of SectionClose
+  check SectionClose(r[0]).key.strip == "section"
+
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"
   let r = parse(s)

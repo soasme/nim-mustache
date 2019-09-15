@@ -165,6 +165,24 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
   else:
     result = 0
 
+proc scanSectionClose*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  let start = idx
+  var pos = idx
+  var key: string
+
+  if scanp(
+    s, pos,
+    (
+      '/',
+      *{' ', '\t'},
+      scanTagKey($input, $index, delim, key)
+    )
+  ):
+    token = SectionClose(key: key)
+    result = pos - start
+  else:
+    result = 0
+
 proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
   var size: int
 
@@ -186,6 +204,10 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
 
   # section open
   size = scanSectionOpen(s, idx, delim, token)
+  if size != 0: return size
+
+  # section close
+  size = scanSectionClose(s, idx, delim, token)
   if size != 0: return size
 
   # variable
