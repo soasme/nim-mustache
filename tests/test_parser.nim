@@ -21,8 +21,7 @@ test "parse tag - escaped":
     check s.parse.render(ctx) == "value"
 
 test "parse comment":
-  let r = "{{!comment}}".parse
-  check r.len == 0
+  check "{{!comment}}".parse.render(newContext()) == ""
 
 test "parse unescaped":
   let r = "{{& name}}".parse
