@@ -14,12 +14,11 @@ test "parse text - unopened tag":
 test "parse text - unbalanced tag":
   check "parse text {{ xyz".parse.render(newContext()) == "parse text {{ xyz"
 
-test "parse tag - unescaped":
+test "parse tag - escaped":
+  let ctx = newContext()
+  ctx["key"] = "value"
   for s in @["{{key}}", "{{ key  }}"]:
-    let r = parse(s)
-    check r.len == 1
-    check r[0] of EscapedTag
-    check EscapedTag(r[0]).key.strip == "key"
+    check s.parse.render(ctx) == "value"
 
 test "parse comment":
   let r = "{{!comment}}".parse

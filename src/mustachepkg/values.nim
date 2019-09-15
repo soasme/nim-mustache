@@ -1,4 +1,4 @@
-import tables, sequtils
+import tables, sequtils, strutils
 
 type
   ValueKind* {.pure.}= enum
@@ -68,5 +68,15 @@ proc castBool*(value: Value): bool =
   of vkSeq: value.vSeq.len != 0
   of vkTable: value.vTable.len != 0
   else: true
+
+proc castStr*(value: Value): string =
+  case value.kind
+  of vkInt: $(value.vInt)
+  of vkFloat: $(value.vFloat)
+  of vkString: value.vString
+  of vkBool: $(value.vBool)
+  of vkSeq: "@[]" # TODO
+  of vkTable: "{}" # TODO
+  else: ""
 
 proc newContext*(): Context = Context(values: initTable[string,Value]())
