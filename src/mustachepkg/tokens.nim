@@ -13,8 +13,7 @@ type
     doc*: string
 
   EscapedTag* = ref object of Token
-    name*: string
-    tag*: string
+    key*: string
 
   UnescapedTag* = ref object of Token
     name*: string
