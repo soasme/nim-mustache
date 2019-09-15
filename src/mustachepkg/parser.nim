@@ -115,6 +115,27 @@ proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): in
   else:
     result = 0
 
+proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  let start = idx
+  var pos = idx
+  var key: string
+
+  if scanp(
+    s, pos,
+    (
+      '{',
+      *{' ', '\t'},
+      +(~{'}'}) -> key.add($_),
+      *{' ', '\t'},
+      '}',
+    )
+  ):
+    token = UnescapedTag(key: key)
+    result = pos - start
+  else:
+    result = 0
+
+
 proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token): int =
   var size: int
 
@@ -126,8 +147,12 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
   size = scanComment(s, idx, delim)
   if size != 0: return size
 
-  # unescaped tag
+  # unescaped tag - &
   size = scanUnescaped(s, idx, delim, token)
+  if size != 0: return size
+
+  # unescaped tag - {{{triple mustache}}}
+  size = scanTripleMustache(s, idx, delim, token)
   if size != 0: return size
 
   # variable

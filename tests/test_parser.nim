@@ -49,6 +49,12 @@ test "parse unescaped":
   check r[0] of UnescapedTag
   check UnescapedTag(r[0]).key.strip == "name"
 
+test "parse triple mustache":
+  let r = "{{{ name }}}".parse
+  check r.len == 1
+  check r[0] of UnescapedTag
+  check UnescapedTag(r[0]).key.strip == "name"
+
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"
   let r = parse(s)
