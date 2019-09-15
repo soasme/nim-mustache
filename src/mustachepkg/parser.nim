@@ -89,9 +89,28 @@ proc scanComment*(s: string, idx: int, delim: Delimiter): int =
     s, pos,
     (
       '!',
-      scanTagKey(s, idx+1, delim, comment)
+      *{' ', '\t'},
+      scanTagKey($input, $index, delim, comment)
     )
   ):
+    result = pos - start
+  else:
+    result = 0
+
+proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  let start = idx
+  var pos = idx
+  var key: string
+
+  if scanp(
+    s, pos,
+    (
+      '&',
+      *{' ', '\t'},
+      scanTagKey($input, $index, delim, key)
+    )
+  ):
+    token = UnescapedTag(key: key)
     result = pos - start
   else:
     result = 0
@@ -105,6 +124,10 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
 
   # comment
   size = scanComment(s, idx, delim)
+  if size != 0: return size
+
+  # unescaped tag
+  size = scanUnescaped(s, idx, delim, token)
   if size != 0: return size
 
   # variable

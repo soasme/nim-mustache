@@ -41,8 +41,13 @@ test "parse tag key":
 
 test "parse comment":
   let r = "{{!comment}}".parse
-  echo(r)
   check r.len == 0
+
+test "parse unescaped":
+  let r = "{{& name}}".parse
+  check r.len == 1
+  check r[0] of UnescapedTag
+  check UnescapedTag(r[0]).key.strip == "name"
 
 test "parse set elimiter - changed":
   let s = "{{=<% %>=}}<% key %>"

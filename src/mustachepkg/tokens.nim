@@ -16,8 +16,7 @@ type
     key*: string
 
   UnescapedTag* = ref object of Token
-    name*: string
-    tag*: string
+    key*: string
 
   SectionOpen* = ref object of Token
     name*: string
