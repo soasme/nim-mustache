@@ -68,6 +68,9 @@ proc scanTagOpen*(s: string, idx: int, delim: Delimiter): int =
 proc scanTagClose*(s: string, idx: int, delim: Delimiter): int =
   if s.peeks(idx).startsWith(delim.close): delim.close.len else: 0
 
+proc scanTagContent*(s: string, idx: int, delim: Delimiter, key: var string): int =
+  return scanTagKey(s, idx, delim, key)
+
 proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): int =
   let start = idx
   let opener = delim.open
@@ -79,7 +82,7 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
     (
       scanTagOpen($input, $index, delim),
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, key),
+      scanTagContent($input, $index, delim, key),
       *{' ', '\t'},
       scanTagClose($input, $index, delim),
     )
@@ -95,8 +98,7 @@ proc scanm(s: string, idx: var int, delim: var Delimiter, token: var Token): boo
   ## It turns s[idx .. new idx] to a token and then updates idx to new idx.
   ##
   ## TODO: use scanp parse to Text, Tag, Section, etc.
-  if s.scanTag(idx, delim, token) != 0:
-    return true
+  if s.scanTag(idx, delim, token) != 0: return true
   return s.scanText(idx, delim, token) != 0
 
 proc parse*(s: string): seq[Token] =
