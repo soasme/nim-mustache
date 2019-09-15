@@ -5,26 +5,19 @@ import ./errors
 
 proc peeks*(s: string, start: int): string = s[start ..< s.len]
 
-#proc delimiter*(s: string, delim: string): int =
-  ### Delimiter eats string `s` for up to N chars if s starts with
-  ### the given delim, which has the length of N.
-  #if s.startsWith(delim): delim.len else: 0
-
 proc scanText*(s: string, idx: var int, delim: Delimiter, token: var Token): int =
   ## Anything that does not conflict with open or close counts as text.
+  ##
   ## Text eats string `s` until an open or close delimiter is detected.
+  ##
   var doc: string
   result = s.parseUntil(doc, delim.open, start=idx)
   if result != 0:
     token = Text(doc: doc)
     idx += result
 
-proc scanTagKey*(s: string, idx: int, delim: Delimiter, token: var string): int =
-  s.parseUntil(token, delim.close, start=idx)
-
-proc setDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token): int =
-  var open: string
-  var close: string
+proc scanSetDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token): int =
+  var open, close: string
   var pos = idx
   let start = idx
 
@@ -55,7 +48,7 @@ proc scanTagClose*(s: string, idx: int, delim: Delimiter): int =
 proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int =
   var key: string
   let start = idx
-  let size = scanTagKey(s, idx, delim, key)
+  let size = parseUntil(s, key, delim.close, idx)
   if size == 0:
     result = 0
   else:
@@ -72,7 +65,7 @@ proc scanComment*(s: string, idx: int, delim: Delimiter): int =
     (
       '!',
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, comment)
+      parseUntil($input, comment, delim.close, $index),
     )
   ):
     result = pos - start
@@ -89,7 +82,7 @@ proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): in
     (
       '&',
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, key)
+      parseUntil($input, key, delim.close, $index),
     )
   ):
     token = UnescapedTag(key: key)
@@ -139,7 +132,7 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
     (
       scanInverted($input, $index, inverted),
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, key)
+      parseUntil($input, key, delim.close, $index),
     )
   ):
     token = SectionOpen(key: key, inverted: inverted)
@@ -157,7 +150,7 @@ proc scanSectionClose*(s: string, idx: int, delim: Delimiter, token: var Token):
     (
       '/',
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, key)
+      parseUntil($input, key, delim.close, $index),
     )
   ):
     token = SectionClose(key: key)
@@ -175,7 +168,7 @@ proc scanPartial*(s: string, idx: int, delim: Delimiter, token: var Token): int 
     (
       '>',
       *{' ', '\t'},
-      scanTagKey($input, $index, delim, key)
+      parseUntil($input, key, delim.close, $index),
     )
   ):
     token = Partial(key: key)
@@ -187,7 +180,7 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
   var size: int
 
   # set delimiter
-  size = setDelimiter(s, idx, delim, token)
+  size = scanSetDelimiter(s, idx, delim, token)
   if size != 0: return size
 
   # comment
@@ -243,8 +236,6 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
 proc scanm(s: string, idx: var int, delim: var Delimiter, token: var Token): bool =
   ## Scan mustache tokens from a given string `s` starting from `idx`.
   ## It turns s[idx .. new idx] to a token and then updates idx to new idx.
-  ##
-  ## TODO: use scanp parse to Text, Tag, Section, etc.
   if s.scanTag(idx, delim, token) != 0: return true
   return s.scanText(idx, delim, token) != 0
 

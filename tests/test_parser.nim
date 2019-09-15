@@ -32,13 +32,6 @@ test "parse tag - unescaped":
     check r[0] of EscapedTag
     check EscapedTag(r[0]).key.strip == "key"
 
-test "parse tag key":
-  var token: string
-  var idx = 0
-  let r = "abcde }}".scanTagKey(idx, Delimiter(close: "}}"), token)
-  check token == "abcde "
-  check r == 6
-
 test "parse comment":
   let r = "{{!comment}}".parse
   check r.len == 0
