@@ -42,9 +42,10 @@ method render*(token: Section, ctx: Context): string =
 
   # TODO: Lambdas will display token raw string.
   elif val.kind == vkProc:
-    return val.vProc(token.children.map(
+    let src = token.children.map(
       proc(s: Token): string = s.src
-    ).join(""))
+    ).join("")
+    return val.vProc(src, ctx)
 
   # Non-empty Values
   else:
