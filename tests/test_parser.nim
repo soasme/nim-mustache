@@ -88,6 +88,19 @@ test "render section - non-false values":
   let r = s.parse.render(c)
   check r == "Shown."
 
+test "render section - inverted":
+  let s = "{{^section}}Shown.{{/section}}"
+  let c = newContext()
+  let r = s.parse.render(c)
+  check r == "Shown."
+
+test "render section - inverted truthy value":
+  let s = "{{^section}}Never Shown.{{/section}}"
+  let c = newContext()
+  c["section"] = true
+  let r = s.parse.render(c)
+  check r == ""
+
 #test "parse set delimiter":
   #let src = @["= <% %> =", "=<% %>="]
   #for s in src:

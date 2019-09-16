@@ -27,6 +27,7 @@ type
 
   Section* = ref object of Token
     key*: string
+    inverted*: bool
     children*: seq[Token]
 
   Partial* = ref object of Token

@@ -19,6 +19,14 @@ method render*(token: UnescapedTag, ctx: Context): string =
 
 method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
+
+  var display = val.castBool
+  if token.inverted:
+    display = not display
+
+  if not display:
+    return ""
+
   # Lists
   if val.kind == vkSeq:
     for el in val.vSeq:
@@ -31,19 +39,19 @@ method render*(token: Section, ctx: Context): string =
   # TODO: Lambdas
 
   # Non-empty Values
-  elif val.castBool:
-    return render(token.children, ctx)
-
-  # False Values or Empty Lists
   else:
-    return ""
+    return render(token.children, ctx)
 
 proc render*(tokens: seq[Token], ctx: Context): string =
   var stack: seq[Section] = @[]
   for token in tokens:
     if token of SectionOpen:
       let open = SectionOpen(token)
-      stack.add(Section(key: open.key, children: @[]))
+      stack.add(Section(
+        key: open.key,
+        inverted: open.inverted,
+        children: @[]
+      ))
 
     elif token of SectionClose:
       var close = SectionClose(token)
