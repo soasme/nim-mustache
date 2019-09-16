@@ -22,6 +22,7 @@ type
 
   Context* = ref object
     values: Table[string, Value]
+    parent: Context
 
 proc castValue*(value: int): Value =
   Value(kind: vkInt, vInt: value)
