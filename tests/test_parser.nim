@@ -81,6 +81,13 @@ test "render section - non-empty lists":
   let r = s.parse.render(c)
   check r == "Shown.Shown Again."
 
+test "render section - non-false values":
+  let s = "{{#repo}}{{name}}{{/repo}}"
+  let c = newContext()
+  c["repo"] = {"name": "Shown."}.toTable
+  let r = s.parse.render(c)
+  check r == "Shown."
+
 #test "parse set delimiter":
   #let src = @["= <% %> =", "=<% %>="]
   #for s in src:
