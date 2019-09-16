@@ -52,17 +52,13 @@ proc `[]=`*(ctx: Context, key: string, value: Value) =
   ctx.values[key] = value
 
 proc `[]=`*[T](ctx: Context, key: string, value: T) =
-  ## Combine the key with a value within the given ctx.
-  ## Example:
-  ##
-  ##   ctx["name"] = 1
-  ##   ctx["name"] = "string"
-  ##   ctx["name"] = @[1,2,3]
   ctx.values[key] = value.castValue
 
 proc `[]`*(ctx: Context, key: string): Value =
   if ctx.values.contains(key):
     result = ctx.values[key]
+  elif ctx.parent != nil:
+    result = ctx.parent[key]
   else:
     result = castValue("")
 

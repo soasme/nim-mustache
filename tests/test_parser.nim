@@ -111,3 +111,17 @@ test "render section - lambda - static":
   c["k"] = "v"
   c["section"] = proc (s: string, c: Context): string = "Replaced: " & s
   check s.render(c) == "Replaced: {{k}}"
+
+test "render section - parent context":
+  let s = "{{#section}}{{k}}{{/section}}"
+  let c = newContext()
+  c["k"] = "Shown"
+  c["section"] = true
+  check s.render(c) == "Shown"
+
+test "render section - overwrite parent context":
+  let s = "{{#section}}{{k}}{{/section}}"
+  let c = newContext()
+  c["k"] = "Never Shown"
+  c["section"] = {"k": "Shown"}.toTable
+  check s.render(c) == "Shown"
