@@ -125,3 +125,10 @@ test "render section - overwrite parent context":
   c["k"] = "Never Shown"
   c["section"] = {"k": "Shown"}.toTable
   check s.render(c) == "Shown"
+
+test "render section - overwrite parent context in list":
+  let s = "{{#section}}{{k}}{{/section}}"
+  let c = newContext()
+  c["k"] = "Shown"
+  c["section"] = @[{"v": "Never Shown"}.toTable]
+  check s.render(c) == "Shown"
