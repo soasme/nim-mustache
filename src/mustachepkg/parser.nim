@@ -13,7 +13,7 @@ proc scanText*(s: string, idx: var int, delim: Delimiter, token: var Token): int
   var doc: string
   result = s.parseUntil(doc, delim.open, start=idx)
   if result != 0:
-    token = Text(doc: doc)
+    token = Text(doc: doc, src: doc)
     idx += result
 
 proc scanSetDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token): int =
@@ -34,7 +34,7 @@ proc scanSetDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token):
     )
   ):
     let newDelim = Delimiter(open: open, close: close)
-    token = SetDelimiter(delimiter: newDelim)
+    token = SetDelimiter(delimiter: newDelim, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -52,7 +52,7 @@ proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int
   if size == 0:
     result = 0
   else:
-    token = EscapedTag(key: key)
+    token = EscapedTag(key: key, src: s[start..<start+size])
     result = size
 
 proc scanComment*(s: string, idx: int, delim: Delimiter): int =
@@ -85,7 +85,7 @@ proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): in
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = UnescapedTag(key: key)
+    token = UnescapedTag(key: key, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -105,7 +105,7 @@ proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token
       '}',
     )
   ):
-    token = UnescapedTag(key: key)
+    token = UnescapedTag(key: key, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -135,7 +135,7 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionOpen(key: key, inverted: inverted)
+    token = SectionOpen(key: key, inverted: inverted, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -153,7 +153,7 @@ proc scanSectionClose*(s: string, idx: int, delim: Delimiter, token: var Token):
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionClose(key: key)
+    token = SectionClose(key: key, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -171,7 +171,7 @@ proc scanPartial*(s: string, idx: int, delim: Delimiter, token: var Token): int 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = Partial(key: key)
+    token = Partial(key: key, src: s[start..<pos])
     result = pos - start
   else:
     result = 0
@@ -254,5 +254,6 @@ proc parse*(s: string): seq[Token] =
         delim = SetDelimiter(token).delimiter
     else:
       # if no mustache rule is matched, it eats 1 char as a Text at a time.
-      result.add(Text(doc: fmt"{s[idx]}"))
+      let ch = fmt"{s[idx]}"
+      result.add(Text(doc: ch, src: ch))
       idx += 1

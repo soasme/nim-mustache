@@ -98,3 +98,9 @@ test "render section - inverted truthy value":
   let c = newContext()
   c["section"] = true
   check s.render(c) == ""
+
+test "render section - lambda":
+  let s = "{{#section}}Shown.{{/section}}"
+  let c = newContext()
+  c["section"] = proc (s: string): string = "Replaced: " & s
+  check s.render(c) == "Replaced: Shown."

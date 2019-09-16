@@ -1,4 +1,4 @@
-import strutils, strformat
+import strutils, strformat, sequtils
 
 import ./errors
 import ./tokens
@@ -21,6 +21,7 @@ method render*(token: UnescapedTag, ctx: Context): string =
 method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
 
+  # Inverted
   var display = val.castBool
   if token.inverted:
     display = not display
@@ -39,7 +40,11 @@ method render*(token: Section, ctx: Context): string =
   elif val.kind == vkTable:
     return render(token.children, val.derive(ctx))
 
-  # TODO: Lambdas
+  # TODO: Lambdas will display token raw string.
+  elif val.kind == vkProc:
+    return val.vProc(token.children.map(
+      proc(s: Token): string = s.src
+    ).join(""))
 
   # Non-empty Values
   else:

@@ -16,7 +16,7 @@ type
     of vkFloat: vFloat*: float
     of vkString: vString*: string
     of vkBool: vBool*: bool
-    of vkProc: vProc*: proc()
+    of vkProc: vProc*: proc(s: string): string {.closure.}
     of vkSeq: vSeq*: seq[Value]
     of vkTable: vTable*: ref Table[string, Value]
 
@@ -35,6 +35,9 @@ proc castValue*(value: string): Value =
 
 proc castValue*(value: bool): Value =
   Value(kind: vkBool, vBool: value)
+
+proc castValue*(value: proc(s: string) : string): Value =
+  Value(kind: vkProc, vProc: value)
 
 proc castValue*[T](value: Table[string, T]): Value =
   let newValue = new(Table[string, Value])

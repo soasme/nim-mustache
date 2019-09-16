@@ -6,6 +6,7 @@ type
     close*: string
 
   Token* = ref object of RootObj
+    src*: string
     pos*: int
     size*: int
 
