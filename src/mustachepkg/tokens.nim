@@ -25,6 +25,10 @@ type
   SectionClose* = ref object of Token
     key*: string
 
+  Section* = ref object of Token
+    key*: string
+    children*: seq[Token]
+
   Partial* = ref object of Token
     key*: string
 
