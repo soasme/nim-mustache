@@ -39,20 +39,20 @@ $ nimble install mustache # not yet available until 23 Sep, 2019
 import mustache, tables
 
 # Step 2.
-c = Context()
+var c = Context()
 c["i"] = 1
 c["f"] = 1.0
 c["s"] = "hello world"
-c["l"] = @[{"k": "v"}.toTable]
+c["a"] = @[{"k": "v"}.toTable]
 c["t"] = {"k": "v"}.toTable
 c["l"] = proc(s: string, c: Context): string = "<b>" & s.render(c) & "</b>"
 
 # Step 3.
 let s = """
 {{i}} {{f}} {{s}}
-{{#l}}
+{{#a}}
   {{k}}
-{{/l}}
+{{/a}}
 
 {{#t}}
   {{k}}
