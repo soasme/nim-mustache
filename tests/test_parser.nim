@@ -1,4 +1,4 @@
-import unittest, strscans, streams, strutils
+import unittest, strscans, streams, strutils, tables
 
 import mustachepkg/tokens
 import mustachepkg/values
@@ -67,12 +67,19 @@ test "render section - never shown":
   let r = s.parse.render(c)
   check r == ""
 
-test "render section - ":
+test "render section - shown":
   let s = "{{#section}}Shown{{/section}}"
   let c = newContext()
   c["section"] = true
   let r = s.parse.render(c)
   check r == "Shown"
+
+test "render section - non-empty lists":
+  let s = "{{#repo}}{{name}}{{/repo}}"
+  let c = newContext()
+  c["repo"] = @[{"name": "Shown."}.toTable, {"name": "Shown Again."}.toTable]
+  let r = s.parse.render(c)
+  check r == "Shown.Shown Again."
 
 #test "parse set delimiter":
   #let src = @["= <% %> =", "=<% %>="]
