@@ -3,6 +3,7 @@ import strutils, strformat
 import ./errors
 import ./tokens
 import ./values
+import ./parser
 
 proc render*(tokens: seq[Token], ctx: Context): string;
 
@@ -77,3 +78,6 @@ proc render*(tokens: seq[Token], ctx: Context): string =
 
     else:
       result.add(token.render(ctx))
+
+proc render*(s: string, ctx: Context = newContext()): string =
+  s.parse.render(ctx)

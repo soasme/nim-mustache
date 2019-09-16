@@ -6,28 +6,28 @@ import mustachepkg/parser
 import mustachepkg/render
 
 test "parse text - normal text":
-  check "parse text".parse.render(newContext()) == "parse text"
+  check "parse text".render() == "parse text"
 
 test "parse text - unopened tag":
-  check "parse text }}".parse.render(newContext()) == "parse text }}"
+  check "parse text }}".render(newContext()) == "parse text }}"
 
 test "parse text - unbalanced tag":
-  check "parse text {{ xyz".parse.render(newContext()) == "parse text {{ xyz"
+  check "parse text {{ xyz".render(newContext()) == "parse text {{ xyz"
 
 test "parse tag - escaped":
   let ctx = newContext()
   ctx["key"] = "value"
   for s in @["{{key}}", "{{ key  }}"]:
-    check s.parse.render(ctx) == "value"
+    check s.render(ctx) == "value"
 
 test "parse comment":
-  check "{{!comment}}".parse.render(newContext()) == ""
+  check "{{!comment}}".render(newContext()) == ""
 
 test "parse unescaped":
   let ctx = newContext()
   ctx["name"] = "&mustache"
-  check "{{& name}}".parse.render(ctx) == "&mustache"
-  check "{{{ name }}}".parse.render(ctx) == "&mustache"
+  check "{{& name}}".render(ctx) == "&mustache"
+  check "{{{ name }}}".render(ctx) == "&mustache"
 
 test "parse section open":
   let r = "{{# start }}".parse
@@ -62,58 +62,39 @@ test "parse partial":
   check Partial(r[0]).key.strip == "key"
 
 test "render section - never shown":
-  let s = "{{#section}}Never shown{{/section}}"
-  let c = newContext()
-  let r = s.parse.render(c)
-  check r == ""
+  check "{{#section}}Never shown{{/section}}".render == ""
 
 test "render section - shown":
-  let s = "{{#section}}Shown{{/section}}"
   let c = newContext()
   c["section"] = true
-  let r = s.parse.render(c)
-  check r == "Shown"
+  check "{{#section}}Shown{{/section}}".render(c) == "Shown"
 
 test "render section - non-empty lists":
   let s = "{{#repo}}{{name}}{{/repo}}"
   let c = newContext()
   c["repo"] = @[{"name": "Shown."}.toTable, {"name": "Shown Again."}.toTable]
-  let r = s.parse.render(c)
-  check r == "Shown.Shown Again."
+  check s.render(c) == "Shown.Shown Again."
 
 test "render section - non-false values":
   let s = "{{#repo}}{{name}}{{/repo}}"
   let c = newContext()
   c["repo"] = {"name": "Shown."}.toTable
-  let r = s.parse.render(c)
-  check r == "Shown."
+  check s.render(c) == "Shown."
 
 test "render section - .":
   let s = "{{#repo}}{{.}}{{/repo}}"
   let c = newContext()
   c["repo"] = @["Shown.", "Shown Again."]
-  let r = s.parse.render(c)
-  check r == "Shown.Shown Again."
+  check s.render(c) == "Shown.Shown Again."
 
 test "render section - inverted":
   let s = "{{^section}}Shown.{{/section}}"
   let c = newContext()
-  let r = s.parse.render(c)
+  let r = s.render(c)
   check r == "Shown."
 
 test "render section - inverted truthy value":
   let s = "{{^section}}Never Shown.{{/section}}"
   let c = newContext()
   c["section"] = true
-  let r = s.parse.render(c)
-  check r == ""
-
-#test "parse set delimiter":
-  #let src = @["= <% %> =", "=<% %>="]
-  #for s in src:
-    #var delim = Delimiter(open: "{{", close: "}}")
-    #var idx = 0
-    #let r = setDelimiter(s, idx, delim)
-    #check r == s.len
-    #check delim.open == "<%"
-    #check delim.close == "%>"
+  check s.render(c) == ""
