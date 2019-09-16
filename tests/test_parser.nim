@@ -104,3 +104,10 @@ test "render section - lambda":
   let c = newContext()
   c["section"] = proc (s: string): string = "Replaced: " & s
   check s.render(c) == "Replaced: Shown."
+
+test "render section - lambda - static":
+  let s = "{{#section}}{{k}}{{/section}}"
+  let c = newContext()
+  c["k"] = "v"
+  c["section"] = proc (s: string): string = "Replaced: " & s
+  check s.render(c) == "Replaced: {{k}}"

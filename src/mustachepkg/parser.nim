@@ -34,7 +34,7 @@ proc scanSetDelimiter*(s: string, idx: int, delim: Delimiter, token: var Token):
     )
   ):
     let newDelim = Delimiter(open: open, close: close)
-    token = SetDelimiter(delimiter: newDelim, src: s[start..<pos])
+    token = SetDelimiter(delimiter: newDelim)
     result = pos - start
   else:
     result = 0
@@ -52,7 +52,7 @@ proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int
   if size == 0:
     result = 0
   else:
-    token = EscapedTag(key: key, src: s[start..<start+size])
+    token = EscapedTag(key: key)
     result = size
 
 proc scanComment*(s: string, idx: int, delim: Delimiter): int =
@@ -85,7 +85,7 @@ proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): in
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = UnescapedTag(key: key, src: s[start..<pos])
+    token = UnescapedTag(key: key)
     result = pos - start
   else:
     result = 0
@@ -105,7 +105,7 @@ proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token
       '}',
     )
   ):
-    token = UnescapedTag(key: key, src: s[start..<pos])
+    token = UnescapedTag(key: key)
     result = pos - start
   else:
     result = 0
@@ -135,7 +135,7 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionOpen(key: key, inverted: inverted, src: s[start..<pos])
+    token = SectionOpen(key: key, inverted: inverted)
     result = pos - start
   else:
     result = 0
@@ -153,7 +153,7 @@ proc scanSectionClose*(s: string, idx: int, delim: Delimiter, token: var Token):
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionClose(key: key, src: s[start..<pos])
+    token = SectionClose(key: key)
     result = pos - start
   else:
     result = 0
@@ -171,7 +171,7 @@ proc scanPartial*(s: string, idx: int, delim: Delimiter, token: var Token): int 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = Partial(key: key, src: s[start..<pos])
+    token = Partial(key: key)
     result = pos - start
   else:
     result = 0
@@ -228,6 +228,7 @@ proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): 
       scanTagClose($input, $index, delim),
     )
   ):
+    if token != nil: token.src = s[start..<idx]
     result = idx-start
   else:
     idx = start
