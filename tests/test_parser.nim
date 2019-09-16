@@ -61,11 +61,18 @@ test "parse partial":
   check r[0] of Partial
   check Partial(r[0]).key.strip == "key"
 
-test "render section":
+test "render section - never shown":
   let s = "{{#section}}Never shown{{/section}}"
   let c = newContext()
   let r = s.parse.render(c)
-  check r == "section"
+  check r == ""
+
+test "render section - ":
+  let s = "{{#section}}Shown{{/section}}"
+  let c = newContext()
+  c["section"] = true
+  let r = s.parse.render(c)
+  check r == "Shown"
 
 #test "parse set delimiter":
   #let src = @["= <% %> =", "=<% %>="]

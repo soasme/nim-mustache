@@ -12,13 +12,13 @@ type
 
   Value* = object
     case kind*: ValueKind
-    of vkInt: vInt: int
-    of vkFloat: vFloat: float
-    of vkString: vString: string
-    of vkBool: vBool: bool
-    of vkProc: vProc: proc()
-    of vkSeq: vSeq: seq[Value]
-    of vkTable: vTable: ref Table[string, Value]
+    of vkInt: vInt*: int
+    of vkFloat: vFloat*: float
+    of vkString: vString*: string
+    of vkBool: vBool*: bool
+    of vkProc: vProc*: proc()
+    of vkSeq: vSeq*: seq[Value]
+    of vkTable: vTable*: ref Table[string, Value]
 
   Context* = ref object
     values: Table[string, Value]
@@ -44,6 +44,9 @@ proc castValue*[T](value: Table[string, T]): Value =
 
 proc castValue*[T](value: seq[T]): Value =
   Value(kind: vkSeq, vSeq: value.map(castValue))
+
+proc `[]=`*(ctx: Context, key: string, value: Value) =
+  ctx.values[key] = value
 
 proc `[]=`*[T](ctx: Context, key: string, value: T) =
   ## Combine the key with a value within the given ctx.
@@ -81,3 +84,9 @@ proc castStr*(value: Value): string =
   else: ""
 
 proc newContext*(): Context = Context(values: initTable[string,Value]())
+
+proc derive*(val: Value, c: Context): Context =
+  result = Context(parent: c)
+  if val.kind == vkTable:
+    for k, val in val.vTable.pairs:
+      result[k] = val
