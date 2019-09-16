@@ -18,7 +18,7 @@ TODO:
 - [x] Support Inverted Sections.
 - [x] Support Comments.
 - [x] Support Setting Delimiter.
-- [ ] Support Partial.
+- [x] Support Partial.
 - [ ] Pass mustache spec.
 - [ ] Release v0.1.0.
 - [ ] Add Docs.

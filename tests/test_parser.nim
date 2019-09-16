@@ -132,3 +132,9 @@ test "render section - overwrite parent context in list":
   c["k"] = "Shown"
   c["section"] = @[{"v": "Never Shown"}.toTable]
   check s.render(c) == "Shown"
+
+test "render partial":
+  let s = "{{>test}}"
+  let c = newContext(searchDirs = @["./tests"])
+  c["section"] = true
+  check s.render(c) == "Shown\n"

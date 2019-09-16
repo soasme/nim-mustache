@@ -1,4 +1,4 @@
-import tables, sequtils, strutils
+import tables, sequtils, strutils, strformat, os
 
 type
   ValueKind* {.pure.}= enum
@@ -23,6 +23,7 @@ type
   Context* = ref object
     values: Table[string, Value]
     parent: Context
+    searchDirs: seq[string]
 
 proc castValue*(value: int): Value =
   Value(kind: vkInt, vInt: value)
@@ -82,7 +83,18 @@ proc castStr*(value: Value): string =
   of vkTable: "{}" # TODO
   else: ""
 
-proc newContext*(): Context = Context(values: initTable[string,Value]())
+proc newContext*(searchDirs = @["./"]): Context =
+  Context(values: initTable[string,Value](), searchDirs: searchDirs)
+
+proc read*(c: Context, filename: string): string =
+  for dir in c.searchDirs:
+    let path = fmt"{dir}/{filename}.mustache"
+    if existsFile(path):
+      return readFile(path)
+  if c.parent != nil:
+    return c.parent.read(filename)
+  else:
+    return ""
 
 proc derive*(val: Value, c: Context): Context =
   result = Context(parent: c)

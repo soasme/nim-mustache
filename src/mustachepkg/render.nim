@@ -5,51 +5,7 @@ import ./tokens
 import ./values
 import ./parser
 
-proc render*(tokens: seq[Token], ctx: Context): string;
-
 method render*(token: Token, ctx: Context): string {.base.} = ""
-
-method render*(token: Text, ctx: Context): string =
-  token.doc
-
-method render*(token: EscapedTag, ctx: Context): string =
-  ctx[token.key.strip].castStr
-
-method render*(token: UnescapedTag, ctx: Context): string =
-  ctx[token.key.strip].castStr
-
-method render*(token: Section, ctx: Context): string =
-  let val = ctx[token.key]
-
-  # Inverted
-  var display = val.castBool
-  if token.inverted:
-    display = not display
-
-  if not display:
-    return ""
-
-  # Lists
-  if val.kind == vkSeq:
-    for el in val.vSeq:
-      var newCtx = el.derive(ctx)
-      newCtx["."] = el
-      result.add(render(token.children, newCtx))
-
-  # Tables
-  elif val.kind == vkTable:
-    return render(token.children, val.derive(ctx))
-
-  # TODO: Lambdas will display token raw string.
-  elif val.kind == vkProc:
-    let src = token.children.map(
-      proc(s: Token): string = s.src
-    ).join("")
-    return val.vProc(src, ctx)
-
-  # Non-empty Values
-  else:
-    return render(token.children, ctx)
 
 proc render*(tokens: seq[Token], ctx: Context): string =
   var stack: seq[Section] = @[]
@@ -87,3 +43,49 @@ proc render*(tokens: seq[Token], ctx: Context): string =
 
 proc render*(s: string, ctx: Context = newContext()): string =
   s.parse.render(ctx)
+
+method render*(token: Text, ctx: Context): string =
+  token.doc
+
+method render*(token: EscapedTag, ctx: Context): string =
+  ctx[token.key.strip].castStr
+
+method render*(token: UnescapedTag, ctx: Context): string =
+  ctx[token.key.strip].castStr
+
+method render*(token: Partial, ctx: Context): string =
+  let s = ctx.read(token.key)
+  s.render(ctx)
+
+method render*(token: Section, ctx: Context): string =
+  let val = ctx[token.key]
+
+  # Inverted
+  var display = val.castBool
+  if token.inverted:
+    display = not display
+
+  if not display:
+    return ""
+
+  # Lists
+  if val.kind == vkSeq:
+    for el in val.vSeq:
+      var newCtx = el.derive(ctx)
+      newCtx["."] = el
+      result.add(render(token.children, newCtx))
+
+  # Tables
+  elif val.kind == vkTable:
+    return render(token.children, val.derive(ctx))
+
+  # TODO: Lambdas will display token raw string.
+  elif val.kind == vkProc:
+    let src = token.children.map(
+      proc(s: Token): string = s.src
+    ).join("")
+    return val.vProc(src, ctx)
+
+  # Non-empty Values
+  else:
+    return render(token.children, ctx)
