@@ -7,10 +7,30 @@ import mustachepkg/errors
 import mustachepkg/tokens
 import mustachepkg/parser
 import mustachepkg/values
+import mustachepkg/render
 
 when isMainModule:
-  #echo("hello world".parse)
-  echo("{{ abc }}".openDelimiter)
-  echo("}}".closeDelimiter)
-  #let delim = Delimiter(open: "{{", close: "}}")
-  #echo("text {{ abc }}".text(delim))
+  var c = Context()
+  c["i"] = 1
+  c["f"] = 1.0
+  c["s"] = "hello world"
+  c["a"] = @[{"k": "v"}.toTable]
+  c["t"] = {"k": "v"}.toTable
+  c["l"] = proc(s: string, c: Context): string = "<b>" & s.render(c) & "</b>"
+
+  let s = """
+{{i}} {{f}} {{s}}
+{{#a}}
+  {{k}}
+{{/a}}
+
+{{#t}}
+  {{k}}
+{{/t}}
+
+{{#l}}
+  {{s}}
+{{/l}}
+"""
+  echo(s.render(c))
+
