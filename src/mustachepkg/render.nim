@@ -30,7 +30,9 @@ method render*(token: Section, ctx: Context): string =
   # Lists
   if val.kind == vkSeq:
     for el in val.vSeq:
-      result.add(render(token.children, el.derive(ctx)))
+      var newCtx = el.derive(ctx)
+      newCtx["."] = el
+      result.add(render(token.children, newCtx))
 
   # Tables
   elif val.kind == vkTable:

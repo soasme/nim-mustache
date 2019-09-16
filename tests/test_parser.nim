@@ -88,6 +88,13 @@ test "render section - non-false values":
   let r = s.parse.render(c)
   check r == "Shown."
 
+test "render section - .":
+  let s = "{{#repo}}{{.}}{{/repo}}"
+  let c = newContext()
+  c["repo"] = @["Shown.", "Shown Again."]
+  let r = s.parse.render(c)
+  check r == "Shown.Shown Again."
+
 test "render section - inverted":
   let s = "{{^section}}Shown.{{/section}}"
   let c = newContext()
