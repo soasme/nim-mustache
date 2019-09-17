@@ -25,6 +25,21 @@ type
     parent: Context
     searchDirs: seq[string]
 
+proc derive*(val: Value, c: Context): Context;
+
+proc newContext*(searchDirs = @["./"]): Context =
+  Context(values: initTable[string,Value](), searchDirs: searchDirs)
+
+proc read*(c: Context, filename: string): string =
+  for dir in c.searchDirs:
+    let path = fmt"{dir}/{filename}.mustache"
+    if existsFile(path):
+      return readFile(path)
+  if c.parent != nil:
+    return c.parent.read(filename)
+  else:
+    return ""
+
 proc castValue*(value: BiggestInt): Value =
   Value(kind: vkInt, vInt: value)
 
@@ -72,14 +87,15 @@ proc castValue*(value: JsonNode): Value =
   of JNull:
     result = castValue("")
 
-
-proc `[]=`*(ctx: Context, key: string, value: Value) =
-  ctx.values[key] = value
-
-proc `[]=`*[T](ctx: Context, key: string, value: T) =
-  ctx.values[key] = value.castValue
-
 proc `[]`*(ctx: Context, key: string): Value =
+  if key.contains("."):
+    let parts = key.split(".")
+    try:
+      var newCtx = ctx.values[parts[0]].derive(ctx)
+      return newCtx[parts[1..<parts.len].join(".")]
+    except KeyError:
+      return castValue("")
+
   if ctx.values.contains(key):
     result = ctx.values[key]
   elif ctx.parent != nil:
@@ -107,18 +123,11 @@ proc castStr*(value: Value): string =
   of vkTable: "{}" # TODO
   else: ""
 
-proc newContext*(searchDirs = @["./"]): Context =
-  Context(values: initTable[string,Value](), searchDirs: searchDirs)
+proc `[]=`*(ctx: Context, key: string, value: Value) =
+  ctx.values[key] = value
 
-proc read*(c: Context, filename: string): string =
-  for dir in c.searchDirs:
-    let path = fmt"{dir}/{filename}.mustache"
-    if existsFile(path):
-      return readFile(path)
-  if c.parent != nil:
-    return c.parent.read(filename)
-  else:
-    return ""
+proc `[]=`*[T](ctx: Context, key: string, value: T) =
+  ctx.values[key] = value.castValue
 
 proc derive*(val: Value, c: Context): Context =
   result = Context(parent: c)
