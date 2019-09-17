@@ -248,6 +248,7 @@ proc parse*(s: string): seq[Token] =
   var token: Token
 
   while idx < s.len:
+    token = nil
     if scanm(s, idx, delim, token):
       if token != nil:
         result.add(token)
