@@ -252,7 +252,7 @@ proc parse*(s: string): seq[Token] =
     if scanm(s, idx, delim, token):
       if token != nil:
         result.add(token)
-      elif token of SetDelimiter:
+      if token of SetDelimiter:
         delim = SetDelimiter(token).delimiter
     else:
       # if no mustache rule is matched, it eats 1 char as a Text at a time.

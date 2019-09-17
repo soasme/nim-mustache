@@ -10,9 +10,12 @@ import mustachepkg/values
 import mustachepkg/render
 
 export Context
+export newContext
 export render
 export parse
 export `$`
+export `[]`
+export `[]=`
 
 when isMainModule:
   var c = Context()

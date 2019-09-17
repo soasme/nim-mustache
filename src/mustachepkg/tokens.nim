@@ -43,5 +43,8 @@ method `$`*(token: Text): string = fmt"<text ""{token.doc}"">"
 
 method `$`*(token: EscapedTag): string = fmt"<variable {token.key.strip}>"
 
+method `$`*(token: Partial): string =
+  fmt"<partial key={token.key}>"
+
 method `$`*(token: SetDelimiter): string =
   fmt"<set_delimiter {token.delimiter.open} {token.delimiter.close}>"
