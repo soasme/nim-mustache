@@ -9,6 +9,11 @@ import mustachepkg/parser
 import mustachepkg/values
 import mustachepkg/render
 
+export Context
+export render
+export parse
+export `$`
+
 when isMainModule:
   var c = Context()
   c["i"] = 1
