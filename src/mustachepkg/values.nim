@@ -64,6 +64,8 @@ proc castValue*[T](value: Table[string, T]): Value =
 proc castValue*[T](value: seq[T]): Value =
   Value(kind: vkSeq, vSeq: value.map(castValue))
 
+proc castValue*(value: Value): Value = value
+
 proc castValue*(value: JsonNode): Value =
   case value.kind
   of JObject:
@@ -88,6 +90,12 @@ proc castValue*(value: JsonNode): Value =
     result = castValue("")
 
 proc `[]`*(ctx: Context, key: string): Value =
+  if key == ".":
+    try:
+      return ctx.values["."]
+    except KeyError:
+      return castValue("")
+
   if key.contains("."):
     let parts = key.split(".")
     try:

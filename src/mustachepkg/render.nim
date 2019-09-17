@@ -55,10 +55,10 @@ method render*(token: Text, ctx: Context): string =
   token.doc
 
 method render*(token: EscapedTag, ctx: Context): string =
-  ctx[token.key.strip].castStr.escape
+  ctx[token.key].castStr.escape
 
 method render*(token: UnescapedTag, ctx: Context): string =
-  ctx[token.key.strip].castStr
+  ctx[token.key].castStr
 
 method render*(token: Partial, ctx: Context): string =
   let s = ctx.read(token.key)
@@ -86,7 +86,7 @@ method render*(token: Section, ctx: Context): string =
   elif val.kind == vkTable:
     return render(token.children, val.derive(ctx))
 
-  # TODO: Lambdas will display token raw string.
+  # Lambdas handles static strings.
   elif val.kind == vkProc:
     let src = token.children.map(
       proc(s: Token): string = s.src
