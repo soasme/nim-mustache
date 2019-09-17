@@ -66,13 +66,17 @@ method render*(token: Partial, ctx: Context): string =
 
 method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
+  let truthy = val.castBool
 
   # Inverted
   if token.inverted:
-    if val.castBool:
+    if truthy:
       return ""
     else:
       return render(token.children, ctx)
+
+  if not truthy:
+    return ""
 
   # Lists
   if val.kind == vkSeq:
