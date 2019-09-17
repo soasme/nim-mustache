@@ -1,4 +1,4 @@
-import tables, sequtils, strutils, strformat, os
+import tables, sequtils, strutils, strformat, os, json
 
 type
   ValueKind* {.pure.}= enum
@@ -12,7 +12,7 @@ type
 
   Value* = object
     case kind*: ValueKind
-    of vkInt: vInt*: int
+    of vkInt: vInt*: BiggestInt
     of vkFloat: vFloat*: float
     of vkString: vString*: string
     of vkBool: vBool*: bool
@@ -25,7 +25,7 @@ type
     parent: Context
     searchDirs: seq[string]
 
-proc castValue*(value: int): Value =
+proc castValue*(value: BiggestInt): Value =
   Value(kind: vkInt, vInt: value)
 
 proc castValue*(value: float): Value =
@@ -48,6 +48,30 @@ proc castValue*[T](value: Table[string, T]): Value =
 
 proc castValue*[T](value: seq[T]): Value =
   Value(kind: vkSeq, vSeq: value.map(castValue))
+
+proc castValue*(value: JsonNode): Value =
+  case value.kind
+  of JObject:
+    let vTable = new(Table[string, Value])
+    for key, val in value.pairs:
+      vTable[key] = val.castValue
+    result = Value(kind: vkTable, vTable: vTable)
+  of JArray:
+    var vSeq: seq[Value] = @[]
+    for elem in value.elems:
+      vSeq.add(elem.castValue)
+    result = Value(kind: vkSeq, vSeq: vSeq)
+  of JString:
+    result = value.str.castValue
+  of JBool:
+    result = value.bval.castValue
+  of JFloat:
+    result = value.fnum.castValue
+  of JInt:
+    result = value.num.castValue
+  of JNull:
+    result = castValue("")
+
 
 proc `[]=`*(ctx: Context, key: string, value: Value) =
   ctx.values[key] = value
