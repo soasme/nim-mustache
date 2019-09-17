@@ -5,6 +5,13 @@ import ./tokens
 import ./values
 import ./parser
 
+proc escape(s: string): string = s.multiReplace([
+    ("&", "&amp;"),
+    ("\"", "&quot;"),
+    ("<", "&lt;"),
+    (">", "&gt;"),
+  ])
+
 method render*(token: Token, ctx: Context): string {.base.} = ""
 
 proc render*(tokens: seq[Token], ctx: Context): string =
@@ -48,7 +55,7 @@ method render*(token: Text, ctx: Context): string =
   token.doc
 
 method render*(token: EscapedTag, ctx: Context): string =
-  ctx[token.key.strip].castStr
+  ctx[token.key.strip].castStr.escape
 
 method render*(token: UnescapedTag, ctx: Context): string =
   ctx[token.key.strip].castStr
