@@ -52,7 +52,7 @@ proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int
   if size == 0:
     result = 0
   else:
-    token = EscapedTag(key: key)
+    token = EscapedTag(key: key.strip)
     result = size
 
 proc scanComment*(s: string, idx: int, delim: Delimiter): int =
@@ -85,7 +85,7 @@ proc scanUnescaped*(s: string, idx: int, delim: Delimiter, token: var Token): in
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = UnescapedTag(key: key)
+    token = UnescapedTag(key: key.strip)
     result = pos - start
   else:
     result = 0
@@ -105,7 +105,7 @@ proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token
       '}',
     )
   ):
-    token = UnescapedTag(key: key)
+    token = UnescapedTag(key: key.strip)
     result = pos - start
   else:
     result = 0
@@ -171,7 +171,7 @@ proc scanPartial*(s: string, idx: int, delim: Delimiter, token: var Token): int 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = Partial(key: key)
+    token = Partial(key: key.strip)
     result = pos - start
   else:
     result = 0
