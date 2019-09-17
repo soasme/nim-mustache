@@ -40,6 +40,9 @@ proc read*(c: Context, filename: string): string =
   else:
     return ""
 
+proc castValue*(value: int): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
 proc castValue*(value: BiggestInt): Value =
   Value(kind: vkInt, vInt: value)
 

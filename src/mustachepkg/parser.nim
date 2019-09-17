@@ -1,4 +1,4 @@
-import strscans, strutils, strformat, parseutils, streams
+import strscans, strutils, strformat, parseutils, streams, sugar, sequtils
 
 import ./tokens
 import ./errors
@@ -259,3 +259,30 @@ proc parse*(s: string): seq[Token] =
       let ch = fmt"{s[idx]}"
       result.add(Text(doc: ch, src: ch))
       idx += 1
+
+#proc filterStandalone(tokens: seq[Token]): seq[Token] =
+  #let texts = filter(tokens, proc (x: Token): bool =
+    #(x of Text)
+  #)
+  #let tags = filter(tokens, proc(x: Token): bool =
+    #not (x of Text)
+  #)
+  #let standalone = (
+    #tags.len == 1 and
+    #(
+      #(tags[0] of SectionOpen) or (tags[0] of SectionClose)
+    #) and
+    #all(texts, proc (x: Token): bool =
+      #x.src.strip == ""
+    #)
+  #)
+  #result = if standalone:
+    #tags
+  #else:
+    #tokens
+
+#proc parse*(s: string): seq[Token] =
+  #result = @[]
+  #for line in s.splitLines(keepEol=true):
+    #let tokens = line.parseLine
+    #result &= tokens.filterStandalone

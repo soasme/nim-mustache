@@ -43,6 +43,10 @@ method `$`*(token: Text): string = fmt"<text ""{token.doc}"">"
 
 method `$`*(token: EscapedTag): string = fmt"<variable {token.key.strip}>"
 
+method `$`*(token: SectionOpen): string =
+  fmt"<section_open {token.key.strip} inverted={token.inverted}>"
+method `$`*(token: SectionClose): string = fmt"<section_close {token.key.strip}>"
+
 method `$`*(token: Partial): string =
   fmt"<partial key={token.key}>"
 

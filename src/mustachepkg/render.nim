@@ -68,12 +68,11 @@ method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
 
   # Inverted
-  var display = val.castBool
   if token.inverted:
-    display = not display
-
-  if not display:
-    return ""
+    if val.castBool:
+      return ""
+    else:
+      return render(token.children, ctx)
 
   # Lists
   if val.kind == vkSeq:
