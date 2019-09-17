@@ -138,3 +138,10 @@ test "render partial":
   let c = newContext(searchDirs = @["./tests"])
   c["section"] = true
   check s.render(c) == "Shown\n"
+
+test "scan text stop":
+  let delim = Delimiter(open: "{{", close: "}}")
+  check "abcde".scanTextStop(0, delim) == "abcde".len
+  check "abcde\n\n".scanTextStop(0, delim) == "abcde\n".len
+  check "abcde\n\n".scanTextStop(6, delim) == "\n".len
+  check "abcde\n\n   {{abc}}".scanTextStop(6, delim) == "\n".len

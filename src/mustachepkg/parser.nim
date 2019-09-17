@@ -5,14 +5,26 @@ import ./errors
 
 proc peeks*(s: string, start: int): string = s[start ..< s.len]
 
+proc scanTextStop*(s: string, start: int, delim: Delimiter): int =
+  var pos = start
+  while pos < s.len:
+    if s[pos] == '\n':
+      pos += 1
+      break
+    if s.peeks(pos).startsWith(delim.open):
+      break
+    pos += 1
+  result = pos - start
+
 proc scanText*(s: string, idx: var int, delim: Delimiter, token: var Token): int =
   ## Anything that does not conflict with open or close counts as text.
   ##
   ## Text eats string `s` until an open or close delimiter is detected.
   ##
   var doc: string
-  result = s.parseUntil(doc, delim.open, start=idx)
+  result = s.scanTextStop(idx, delim)
   if result != 0:
+    doc = s[idx ..< idx+result]
     token = Text(doc: doc, src: doc)
     idx += result
 
@@ -259,30 +271,4 @@ proc parse*(s: string): seq[Token] =
       let ch = fmt"{s[idx]}"
       result.add(Text(doc: ch, src: ch))
       idx += 1
-
-#proc filterStandalone(tokens: seq[Token]): seq[Token] =
-  #let texts = filter(tokens, proc (x: Token): bool =
-    #(x of Text)
-  #)
-  #let tags = filter(tokens, proc(x: Token): bool =
-    #not (x of Text)
-  #)
-  #let standalone = (
-    #tags.len == 1 and
-    #(
-      #(tags[0] of SectionOpen) or (tags[0] of SectionClose)
-    #) and
-    #all(texts, proc (x: Token): bool =
-      #x.src.strip == ""
-    #)
-  #)
-  #result = if standalone:
-    #tags
-  #else:
-    #tokens
-
-#proc parse*(s: string): seq[Token] =
-  #result = @[]
-  #for line in s.splitLines(keepEol=true):
-    #let tokens = line.parseLine
-    #result &= tokens.filterStandalone
+  echo(result)
