@@ -271,4 +271,3 @@ proc parse*(s: string): seq[Token] =
       let ch = fmt"{s[idx]}"
       result.add(Text(doc: ch, src: ch))
       idx += 1
-  echo(result)
