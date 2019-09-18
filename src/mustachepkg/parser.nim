@@ -67,7 +67,7 @@ proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int
     token = EscapedTag(key: key.strip)
     result = size
 
-proc scanComment*(s: string, idx: int, delim: Delimiter): int =
+proc scanComment*(s: string, idx: int, delim: Delimiter, token: var Token): int =
   let start = idx
   var pos = idx
   var comment: string
@@ -80,6 +80,7 @@ proc scanComment*(s: string, idx: int, delim: Delimiter): int =
       parseUntil($input, comment, delim.close, $index),
     )
   ):
+    token = Comment()
     result = pos - start
   else:
     result = 0
@@ -196,7 +197,7 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
   if size != 0: return size
 
   # comment
-  size = scanComment(s, idx, delim)
+  size = scanComment(s, idx, delim, token)
   if size != 0: return size
 
   # unescaped tag - &
@@ -290,14 +291,22 @@ iterator iterLine*(tokens: seq[Token]): seq[Token] =
 proc trimStandalone*(tokens: seq[Token]): seq[Token] =
   var buf: seq[Token] = @[]
   for token in tokens:
-    if (token of SectionOpen) or (token of SectionClose):
+    if (
+      (token of SectionOpen) or
+      (token of SectionClose) or
+      (token of SetDelimiter) or
+      (token of Comment)
+    ):
       buf.add(token)
     elif (token of Text):
       if token.src.strip != "":
         return tokens
     else:
       return tokens
-  return buf
+  if buf.len == 0:
+    return tokens
+  else:
+    return buf
 
 proc parse*(s: string): seq[Token] =
   result = @[]

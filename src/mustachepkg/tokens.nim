@@ -13,6 +13,8 @@ type
   Text* = ref object of Token
     doc*: string
 
+  Comment* = ref object of Token
+
   EscapedTag* = ref object of Token
     key*: string
 
