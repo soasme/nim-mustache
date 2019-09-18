@@ -273,12 +273,8 @@ proc scanTokens*(s: string): seq[Token] =
       result.add(Text(doc: ch, src: ch))
       idx += 1
 
-# iterate tokens
-#   buffer, find a line of tokens
-#   if standalone, trim and yield
-#   otherwise, return a line of tokens
-
 iterator iterLine*(tokens: seq[Token]): seq[Token] =
+  ## Group tokens by lines.
   var buf: seq[Token] = @[]
   for token in tokens:
     buf.add(token)
@@ -289,6 +285,7 @@ iterator iterLine*(tokens: seq[Token]): seq[Token] =
     yield buf
 
 proc trimStandalone*(tokens: seq[Token]): seq[Token] =
+  ## Trim surrounded whitespaces for sections, set delimiters, and comments.
   var buf: seq[Token] = @[]
   for token in tokens:
     if (
@@ -299,12 +296,17 @@ proc trimStandalone*(tokens: seq[Token]): seq[Token] =
     ):
       buf.add(token)
     elif (token of Text):
+      # non-whitespaces: not standalone
       if token.src.strip != "":
         return tokens
+      # whitespaces: ignore it.
     else:
+      # all others
       return tokens
+  # only strip line, return tokens.
   if buf.len == 0:
     return tokens
+  # section/set delimiter/comment is surrounded by whitespaces.
   else:
     return buf
 
