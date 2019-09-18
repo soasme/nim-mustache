@@ -284,6 +284,20 @@ iterator iterLine*(tokens: seq[Token]): seq[Token] =
   if buf.len != 0:
     yield buf
 
+proc setIndent*(tokens: seq[Token]): seq[Token]=
+  var indent = 0
+  for token in tokens:
+    if token of Text:
+      if token.src.strip == "":
+        indent += token.src.len
+      else:
+        break
+    elif token of Partial:
+      Partial(token).indent = indent
+    else:
+      break
+  return tokens
+
 proc trimStandalone*(tokens: seq[Token]): seq[Token] =
   ## Trim surrounded whitespaces for sections, set delimiters, and comments.
   var buf: seq[Token] = @[]
@@ -292,6 +306,7 @@ proc trimStandalone*(tokens: seq[Token]): seq[Token] =
       (token of SectionOpen) or
       (token of SectionClose) or
       (token of SetDelimiter) or
+      (token of Partial) or
       (token of Comment)
     ):
       buf.add(token)
@@ -313,4 +328,5 @@ proc trimStandalone*(tokens: seq[Token]): seq[Token] =
 proc parse*(s: string): seq[Token] =
   result = @[]
   for tokens in s.scanTokens.iterLine:
-    result.add(tokens.trimStandalone)
+    var lineTokens = tokens.trimStandalone
+    result.add(tokens.setIndent.trimStandalone)
