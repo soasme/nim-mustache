@@ -252,7 +252,7 @@ proc scanm(s: string, idx: var int, delim: var Delimiter, token: var Token): boo
   if s.scanTag(idx, delim, token) != 0: return true
   return s.scanText(idx, delim, token) != 0
 
-proc parse*(s: string): seq[Token] =
+proc scanTokens*(s: string): seq[Token] =
   result = @[]
 
   var delim = Delimiter(open: "{{", close: "}}")
@@ -271,3 +271,35 @@ proc parse*(s: string): seq[Token] =
       let ch = fmt"{s[idx]}"
       result.add(Text(doc: ch, src: ch))
       idx += 1
+
+# iterate tokens
+#   buffer, find a line of tokens
+#   if standalone, trim and yield
+#   otherwise, return a line of tokens
+
+iterator iterLine*(tokens: seq[Token]): seq[Token] =
+  var buf: seq[Token] = @[]
+  for token in tokens:
+    buf.add(token)
+    if token of Text and token.src.contains('\n'):
+      yield buf
+      buf = @[]
+  if buf.len != 0:
+    yield buf
+
+proc trimStandalone*(tokens: seq[Token]): seq[Token] =
+  var buf: seq[Token] = @[]
+  for token in tokens:
+    if (token of SectionOpen) or (token of SectionClose):
+      buf.add(token)
+    elif (token of Text):
+      if token.src.strip != "":
+        return tokens
+    else:
+      return tokens
+  return buf
+
+proc parse*(s: string): seq[Token] =
+  result = @[]
+  for tokens in s.scanTokens.iterLine:
+    result.add(tokens.trimStandalone)
