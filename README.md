@@ -6,6 +6,8 @@ Nim-mustache is a Nim implementation of Mustache.
 Mustache is a logic-less templating system inspired by ctemplate and et.
 Mustache "emphasizes separating logic from presentation: it is impossible to embed application logic in this template language."
 
+![Build Status](https://travis-ci.org/soasme/nim-mustache.svg?branch=master)
+
 ## Status
 
 Alpha. This project is WIP. I'll release v0.1.0 before 23 Sep, 2019.
