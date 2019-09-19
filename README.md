@@ -21,6 +21,7 @@ Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues
 - ✨ Support `{{! Comments }}`.
 - ✨ Support `{{=<% %>=}} <% SetDelimiter %>`.
 - ✨ Support `{{> Partial }}`.
+- ✨ Support Lambda.
 - ✨ Passed all mustache specs.
 
 ## Getting Started
