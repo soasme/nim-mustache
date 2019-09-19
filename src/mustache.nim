@@ -11,6 +11,9 @@ import mustachepkg/render
 
 export Context
 export newContext
+export Value
+export ValueKind
+export castValue
 export render
 export parse
 export `$`
