@@ -19,7 +19,7 @@ TODO:
 - [x] Support Comments.
 - [x] Support Setting Delimiter.
 - [x] Support Partial.
-- [ ] Pass mustache spec.
+- [x] Pass mustache spec.
 - [ ] Release v0.1.0.
 - [ ] Add Docs.
 - [ ] Auto Build.
