@@ -12,4 +12,4 @@ bin           = @["mustache"]
 
 # Dependencies
 
-requires "nim >= 0.20.2"
+requires "nim >= 0.20.0"
