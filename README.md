@@ -14,13 +14,13 @@ Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues
 
 ## Features
 
-- ✨ Support Static Text.
-- ✨ Support Variables.
-- ✨ Support Sections.
-- ✨ Support Inverted Sections.
-- ✨ Support Comments.
-- ✨ Support Setting Delimiter.
-- ✨ Support Partial.
+- ✨ Support `Static Text`.
+- ✨ Support `{{Variables}}`.
+- ✨ Support `{{# Section }} {{/ Section }}`.
+- ✨ Support `{{^ InvertedSection }} {{/ InvertedSection }}`.
+- ✨ Support `{{! Comments }}`.
+- ✨ Support `{{=<% %>=}} <% SetDelimiter %>`.
+- ✨ Support `{{> Partial }}`.
 - ✨ Passed all mustache specs.
 
 ## Getting Started
