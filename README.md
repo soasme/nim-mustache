@@ -8,6 +8,17 @@ Mustache "emphasizes separating logic from presentation: it is impossible to emb
 
 ![Build Status](https://travis-ci.org/soasme/nim-mustache.svg?branch=master)
 
+## Features
+
+- ✨ Support Static Text.
+- ✨ Support Variables.
+- ✨ Support Sections.
+- ✨ Support Inverted Sections.
+- ✨ Support Comments.
+- ✨ Support Setting Delimiter.
+- ✨ Support Partial.
+- ✨ Passed all mustache specs.
+
 ## Getting Started
 
 Nim-mustache requires Nim >= 0.20.
@@ -23,7 +34,7 @@ $ nimble install mustache
 import mustache, tables
 
 # Step 2.
-var c = Context()
+var c = newContext()
 c["i"] = 1
 c["f"] = 1.0
 c["s"] = "hello world"
@@ -49,22 +60,19 @@ let s = """
 echo(s.render(c))
 ```
 
-## Features
+## Advanced Usage
 
-- [x] Support Static Text.
-- [x] Support Variables.
-- [x] Support Sections.
-- [x] Support Inverted Sections.
-- [x] Support Comments.
-- [x] Support Setting Delimiter.
-- [x] Support Partial.
-- [x] Pass mustache spec.
+### Set Arbitrary Objects in Context.
 
 ## Develop
+
+Build the binary.
 
 ```
 $ nimble build
 ```
+
+Run test cases.
 
 ```bash
 $ nimble test
@@ -73,6 +81,10 @@ $ nimble test
 ## Changelog
 
 * v0.1.0, 19 Sep 2019, initial release.
+
+## Alternatives
+
+* [moustachu](https://github.com/fenekku/moustachu). Moustachu doesn't implement some mustache features, such as lambda, set delimiters, while Nim-mustache supports all mustache features.
 
 ## References
 
