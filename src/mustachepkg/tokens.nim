@@ -35,6 +35,7 @@ type
 
   Partial* = ref object of Token
     key*: string
+    indent*: int
 
   SetDelimiter* = ref object of Token
     delimiter*: Delimiter
@@ -50,7 +51,7 @@ method `$`*(token: SectionOpen): string =
 method `$`*(token: SectionClose): string = fmt"<section_close {token.key.strip}>"
 
 method `$`*(token: Partial): string =
-  fmt"<partial key={token.key}>"
+  fmt"<partial key={token.key} indent={token.indent}>"
 
 method `$`*(token: SetDelimiter): string =
   fmt"<set_delimiter {token.delimiter.open} {token.delimiter.close}>"

@@ -63,9 +63,10 @@ method render*(token: UnescapedTag, ctx: Context): string =
 method render*(token: Partial, ctx: Context): string =
   let s = ctx.read(token.key)
   var lns: seq[string] = @[]
-  for ln in s.render(ctx).splitLines(keepEol=true):
-    lns.add(" ".repeat(token.indent) & ln)
-  result = lns.join("")
+  for ln in s.splitLines(keepEol=true):
+    if ln != "":
+      lns.add(" ".repeat(token.indent) & ln)
+  result = lns.join("").render(ctx)
 
 method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
