@@ -8,6 +8,10 @@ Mustache "emphasizes separating logic from presentation: it is impossible to emb
 
 ![Build Status](https://travis-ci.org/soasme/nim-mustache.svg?branch=master)
 
+## Status
+
+Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues. ❤️
+
 ## Features
 
 - ✨ Support Static Text.
@@ -93,6 +97,35 @@ method castValue(value: Stock): Value =
   result = Value(kind: vkTable, vTable: newValue)
   newValue["name"] = value.name.castValue
   newValue["price"] = value.price.castValue
+```
+
+### Change Partials Searching Dir
+
+By default, partials are located in `cwd`.
+
+```
+$ ls
+main.mustache    partial.mustache
+$ cat main.mustache
+{{> partial}}
+```
+
+But what if mustache files are in other locations?
+
+```
+$ pwd
+/tmp/path/to
+$ ls -R
+main.mustache
+templates/partial.mustache
+```
+
+In this case, You can specify other searching dirs:
+
+```nim
+let c = newContext(searchDirs=@["/tmp/path/to/templates", "./"])
+let s = readFile("main.mustache")
+echo(s.render(c))
 ```
 
 ## Develop
