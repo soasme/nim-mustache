@@ -62,7 +62,38 @@ echo(s.render(c))
 
 ## Advanced Usage
 
-### Set Arbitrary Objects in Context.
+### Set Arbitrary Objects in Context
+
+Consider you have your own object `Stock`.
+
+```nim
+type Stock = object
+  name*: string
+  price*: int
+
+let stock = Stock(name: "NIM", price: 1000)
+```
+
+It would be convenient if you can set it to context:
+
+```nim
+let c = newContext()
+c["stock"] = stock
+let s = "{{#stock}}{{name}}: {{price}}{{/stock}}"
+echo(s.render(c))
+```
+
+The trick is to overwrite `castValue` method. By default, this method can cast
+int, string, seq[Value], table[string, Value], etc. Below is an example of how to
+overwrite it.
+
+```nim
+method castValue(value: Stock): Value =
+  let newValue = new(Table[string, Value])
+  result = Value(kind: vkTable, vTable: newValue)
+  newValue["name"] = value.name.castValue
+  newValue["price"] = value.price.castValue
+```
 
 ## Develop
 
