@@ -59,7 +59,6 @@ proc scanTagClose*(s: string, idx: int, delim: Delimiter): int =
 
 proc scanVariable*(s: string, idx: int, delim: Delimiter, token: var Token): int =
   var key: string
-  let start = idx
   let size = parseUntil(s, key, delim.close, idx)
   if size == 0:
     result = 0
@@ -228,8 +227,6 @@ proc scanTagContent*(s: string, idx: int, delim: var Delimiter, token: var Token
 
 proc scanTag*(s: string, idx: var int, delim: var Delimiter, token :var Token): int =
   let start = idx
-  let opener = delim.open
-  let closer = delim.close
 
   if scanp(
     s, idx,
@@ -328,5 +325,4 @@ proc trimStandalone*(tokens: seq[Token]): seq[Token] =
 proc parse*(s: string): seq[Token] =
   result = @[]
   for tokens in s.scanTokens.iterLine:
-    var lineTokens = tokens.trimStandalone
     result.add(tokens.setIndent.trimStandalone)
