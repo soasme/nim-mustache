@@ -144,6 +144,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.2.1, 20 Sep 2019, fix locks level warnings.
 * v0.2.0, 20 Sep 2019, support setting arbitrary objects in context.
 * v0.1.0, 19 Sep 2019, initial release.
 
