@@ -88,9 +88,8 @@ let s = "{{#stock}}{{name}}: {{price}}{{/stock}}"
 echo(s.render(c))
 ```
 
-The trick is to overwrite `castValue` method. By default, this method can cast
-int, string, seq[Value], table[string, Value], etc. Below is an example of how to
-overwrite it.
+The trick is to define a `castValue` proc for your type.
+Below is an example of how to define a `castValue` for `Stock`.
 
 ```nim
 method castValue(value: Stock): Value =

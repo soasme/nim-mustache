@@ -6,7 +6,7 @@ type Stock = object
   name*: string
   price*: int
 
-method castValue(value: Stock): Value =
+proc castValue(value: Stock): Value =
   let newValue = new(Table[string, Value])
   result = Value(kind: vkTable, vTable: newValue)
   newValue["name"] = value.name.castValue

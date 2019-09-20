@@ -12,7 +12,7 @@ proc escape(s: string): string = s.multiReplace([
     (">", "&gt;"),
   ])
 
-method render*(token: Token, ctx: Context): string {.base.} = ""
+method render*(token: Token, ctx: Context): string {.base, locks: "unknown".} = ""
 
 proc render*(tokens: seq[Token], ctx: Context): string =
   var stack: seq[Section] = @[]
@@ -51,7 +51,7 @@ proc render*(tokens: seq[Token], ctx: Context): string =
 proc render*(s: string, ctx: Context = newContext()): string =
   s.parse.render(ctx)
 
-method render*(token: Text, ctx: Context): string =
+method render*(token: Text, ctx: Context): string {.locks: "unknown".}=
   token.doc
 
 method render*(token: EscapedTag, ctx: Context): string =
