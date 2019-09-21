@@ -92,7 +92,7 @@ The trick is to define a `castValue` proc for your type.
 Below is an example of how to define a `castValue` for `Stock`.
 
 ```nim
-method castValue(value: Stock): Value =
+proc castValue(value: Stock): Value =
   let newValue = new(Table[string, Value])
   result = Value(kind: vkTable, vTable: newValue)
   newValue["name"] = value.name.castValue
