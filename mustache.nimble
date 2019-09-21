@@ -1,7 +1,7 @@
 # Package
 
 version       = "0.2.1"
-author        = "soasme"
+author        = "Ju Lin"
 description   = "Mustache in Nim"
 license       = "MIT"
 srcDir        = "src"
