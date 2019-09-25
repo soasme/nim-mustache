@@ -123,9 +123,32 @@ templates/partial.mustache
 In this case, You can specify other searching dirs:
 
 ```nim
-let c = newContext(searchDirs=@["/tmp/path/to/templates", "./"])
+let c = newContext(searchDirs=@["/path/to/templates", "./"])
 let s = readFile("main.mustache")
 echo(s.render(c))
+```
+
+### Use Mustache With Jester
+
+It's recommended using Mustache with Jester, a sinatra-like web framework for Nim, when writing a web application.
+
+Imagine you have a template file named `hello.mustache`. Rendering the template can be as simple as calling it in a route.
+
+```nim
+import jester
+import mustache
+
+routes:
+  get "/hello/@name":
+    let c = newContext()
+    c["name"] = @"name"
+    resp "{{ >hello }}".render(c)
+```
+
+If you have a dedicated directory template directory, you can specify it as:
+
+```
+let c = newContext(searchDirs = @["/path/to/templates"])
 ```
 
 ## Develop
