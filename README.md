@@ -145,11 +145,22 @@ routes:
     resp "{{ >hello }}".render(c)
 ```
 
+In `hello.mustache`, it's just mustache template content.
+
+```mustache
+<html>
+  <body>
+    <h1>Hello, {{ name }}</h1>
+  </body>
+</html>
+```
+
 If you have a dedicated directory template directory, you can specify it as:
 
 ```
 let c = newContext(searchDirs = @["/path/to/templates"])
 ```
+
 
 ## Develop
 
