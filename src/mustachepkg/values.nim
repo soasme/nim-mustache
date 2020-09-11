@@ -24,13 +24,16 @@ type
     values: Table[string, Value]
     parent: Context
     searchDirs: seq[string]
+    partials: Table[string, string]
 
 proc derive*(val: Value, c: Context): Context;
 
-proc newContext*(searchDirs = @["./"]): Context =
-  Context(values: initTable[string,Value](), searchDirs: searchDirs)
+proc newContext*(searchDirs = @["./"], partials = initTable[string, string]()): Context =
+  Context(values: initTable[string,Value](), searchDirs: searchDirs, partials: partials)
 
 proc read*(c: Context, filename: string): string =
+  if c.partials.hasKey(filename):
+    return c.partials[filename]
   for dir in c.searchDirs:
     let path = fmt"{dir}/{filename}.mustache"
     if existsFile(path):

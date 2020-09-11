@@ -145,3 +145,11 @@ test "scan text stop":
   check "abcde\n\n".scanTextStop(0, delim) == "abcde\n".len
   check "abcde\n\n".scanTextStop(6, delim) == "\n".len
   check "abcde\n\n   {{abc}}".scanTextStop(6, delim) == "\n".len
+
+test "render partial from memory":
+  let s = "loaded from: {{>test}}"
+  let partials = {
+    "test": "in memory"
+  }.toTable()
+  let c = newContext(partials = partials)
+  check s.render(c) == "loaded from: in memory"
