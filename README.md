@@ -128,6 +128,20 @@ let s = readFile("main.mustache")
 echo(s.render(c))
 ```
 
+### Read Partials From Memory
+
+You can also read mustache partials from an in-memory table:
+
+```nim
+import tables
+let partials = {
+  "something": "This is something"
+}.toTable()
+let c = newContext(partials=partials)
+let s = "something: {{> something}}"
+echo(s.render(c))
+```
+
 ### Use Mustache With Jester
 
 It's recommended using Mustache with Jester, a sinatra-like web framework for Nim, when writing a web application.
