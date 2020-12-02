@@ -216,6 +216,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.3.0, 2 Dec 2020, support loading partials from multiple in-memory tables/directories.
 * v0.2.2, 1 Dec 2020, support in-memory table for partial resolving.
 * v0.2.1, 20 Sep 2019, fix locks level warnings.
 * v0.2.0, 20 Sep 2019, support setting arbitrary objects in context.
