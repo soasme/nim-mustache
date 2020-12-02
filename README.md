@@ -142,6 +142,30 @@ let s = "something: {{> something}}"
 echo(s.render(c))
 ```
 
+### Read Partials From Multiple Sources
+
+You can read mustache partials from both directory and in-memory table in different orders.
+The first source that have the partial key wins.
+
+
+```nim
+import tables
+
+let partials1 = {
+  "something": "This is something"
+}.toTable()
+
+let partials2 = {
+  "something": "This is something else"
+}.toTable()
+let c = newContext()
+c.searchTable(partials1)
+c.searchDirs(["/path/to/partials"])
+c.searchTable(partials2)
+let s = "result: {{> something}}"
+echo(s.render(c)) # result: This is something
+```
+
 ### Use Mustache With Jester
 
 It's recommended using Mustache with Jester, a sinatra-like web framework for Nim, when writing a web application.

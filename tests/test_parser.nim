@@ -153,3 +153,17 @@ test "render partial from memory":
   }.toTable()
   let c = newContext(partials = partials)
   check s.render(c) == "loaded from: in memory"
+
+
+test "render partial from multiple sources":
+  let s = "loaded from: {{>test}}"
+  let partials1 = {
+    "test": "in memory 1"
+  }.toTable()
+  let partials2 = {
+    "test": "in memory 2"
+  }.toTable()
+  let c = newContext()
+  c.searchTable(partials1)
+  c.searchTable(partials2)
+  check s.render(c) == "loaded from: in memory 1"

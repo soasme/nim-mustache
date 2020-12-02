@@ -20,24 +20,53 @@ type
     of vkSeq: vSeq*: seq[Value]
     of vkTable: vTable*: ref Table[string, Value]
 
+  LoaderKind* {.pure.} = enum
+    lkDir,
+    lkTable
+
+  Loader* = object
+    case kind*: LoaderKind
+    of lkDir: searchDirs*: seq[string]
+    of lkTable: table*: Table[string, string]
+
   Context* = ref object
     values: Table[string, Value]
     parent: Context
-    searchDirs: seq[string]
-    partials: Table[string, string]
+    loaders: seq[Loader]
 
 proc derive*(val: Value, c: Context): Context;
 
+proc loadPartial*(loader: Loader, filename: string): (bool, string) =
+  case loader.kind
+  of lkDir:
+    for dir in loader.searchDirs:
+      let path = fmt"{dir}/{filename}.mustache"
+      if existsFile(path):
+        return (true, readFile(path))
+  of lkTable:
+    if loader.table.hasKey(filename):
+      return (true, loader.table[filename])
+
+  return (false, "")
+
 proc newContext*(searchDirs = @["./"], partials = initTable[string, string]()): Context =
-  Context(values: initTable[string,Value](), searchDirs: searchDirs, partials: partials)
+  Context(values: initTable[string,Value](), loaders: @[
+    Loader(kind: lkDir, searchDirs: searchDirs),
+    Loader(kind: lkTable, table: partials),
+  ])
+
+proc searchDirs*(c: Context, dirs: seq[string]) =
+  c.loaders.add(Loader(kind: lkDir, searchDirs: dirs))
+
+proc searchTable*(c: Context, table: Table[string, string]) =
+  c.loaders.add(Loader(kind: lkTable, table: table))
 
 proc read*(c: Context, filename: string): string =
-  if c.partials.hasKey(filename):
-    return c.partials[filename]
-  for dir in c.searchDirs:
-    let path = fmt"{dir}/{filename}.mustache"
-    if existsFile(path):
-      return readFile(path)
+  for loader in c.loaders:
+    let (found, ret) = loader.loadPartial(filename)
+    if found:
+      return ret
+
   if c.parent != nil:
     return c.parent.read(filename)
   else:
