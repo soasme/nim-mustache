@@ -129,27 +129,42 @@ proc castValue*(value: JsonNode): Value =
   of JNull:
     result = castValue("")
 
-proc `[]`*(ctx: Context, key: string): Value =
-  if key == ".":
-    try:
-      return ctx.values["."]
-    except KeyError:
-      return castValue("")
+proc lookup(ctx: Context, key: string): Value =
+  if ctx.values.contains(key):
+    return ctx.values[key]
 
   if key.contains("."):
-    let parts = key.split(".")
-    try:
-      var newCtx = ctx.values[parts[0]].derive(ctx)
-      return newCtx[parts[1..<parts.len].join(".")]
-    except KeyError:
-      return castValue("")
+    var subctx = ctx
+    var found = true
+    for subkey in key.split("."):
+      if result.kind == vkSeq:
+        try:
+          let subidx = subkey.parseInt
+          result = result.vSeq[subidx]
+          subctx = result.derive(subctx)
+          continue
+        except:
+          found = false
+          break
 
-  if ctx.values.contains(key):
-    result = ctx.values[key]
-  elif ctx.parent != nil:
-    result = ctx.parent[key]
-  else:
-    result = castValue("")
+      if not subctx.values.contains(subkey):
+        found = false
+        break
+
+      result = subctx.values[subkey]
+      subctx = result.derive(subctx)
+
+    if found:
+      return result
+
+  if ctx.parent == nil:
+    return castValue("")
+
+  return ctx.parent.lookup(key)
+
+
+proc `[]`*(ctx: Context, key: string): Value =
+  return ctx.lookup(key)
 
 proc castBool*(value: Value): bool =
   case value.kind
