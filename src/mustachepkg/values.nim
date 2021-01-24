@@ -162,8 +162,16 @@ proc castStr*(value: Value): string =
   of vkFloat: $(value.vFloat)
   of vkString: value.vString
   of vkBool: $(value.vBool)
-  of vkSeq: "@[]" # TODO
-  of vkTable: "{}" # TODO
+  of vkSeq:
+    var buf: seq[string] = @[]
+    for el in value.vSeq:
+      buf.add(castStr(el))
+    "[" & buf.join(",") & "]"
+  of vkTable:
+    var buf: seq[string] = @[]
+    for key, val in value.vTable.pairs:
+      buf.add(fmt"{key}: {val.castStr}")
+    "{" & buf.join(",") & "}"
   else: ""
 
 proc `[]=`*(ctx: Context, key: string, value: Value) =
