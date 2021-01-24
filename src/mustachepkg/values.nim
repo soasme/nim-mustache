@@ -50,10 +50,15 @@ proc loadPartial*(loader: Loader, filename: string): (bool, string) =
   return (false, "")
 
 proc newContext*(searchDirs = @["./"], partials = initTable[string, string]()): Context =
-  Context(values: initTable[string,Value](), loaders: @[
-    Loader(kind: lkDir, searchDirs: searchDirs),
-    Loader(kind: lkTable, table: partials),
-  ])
+  var loaders: seq[Loader]
+
+  if searchDirs.len != 0:
+    loaders.add(Loader(kind: lkDir, searchDirs: searchDirs))
+
+  if partials.len != 0:
+    loaders.add(Loader(kind: lkTable, table: partials))
+
+  Context(values: initTable[string,Value](), loaders: loaders)
 
 proc searchDirs*(c: Context, dirs: seq[string]) =
   c.loaders.add(Loader(kind: lkDir, searchDirs: dirs))
