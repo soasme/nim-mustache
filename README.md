@@ -216,7 +216,8 @@ $ nimble test
 
 ## Changelog
 
-* v0.3.1, 25 Jan 2021, fix version issue.
+* v0.3.2, 25 Jan 2021, support numeric indexing from list using dot syntax.
+* v0.3.1, 24 Jan 2021, fix version issue.
 * v0.3.0, 2 Dec 2020, support loading partials from multiple in-memory tables/directories.
 * v0.2.2, 1 Dec 2020, support in-memory table for partial resolving.
 * v0.2.1, 20 Sep 2019, fix locks level warnings.
