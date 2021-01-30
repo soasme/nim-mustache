@@ -275,7 +275,7 @@ iterator iterLine*(tokens: seq[Token]): seq[Token] =
   var buf: seq[Token] = @[]
   for token in tokens:
     buf.add(token)
-    if token of Text and token.src.contains('\n'):
+    if token of Text and token.src.countLines > 1:
       yield buf
       buf = @[]
   if buf.len != 0:
