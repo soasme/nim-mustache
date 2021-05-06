@@ -216,6 +216,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.3.3, 7 May 2021, add optional parameter `values` for `newContext` & support JsonNode as a value.
 * v0.3.2, 25 Jan 2021, support numeric indexing from list using dot syntax.
 * v0.3.1, 24 Jan 2021, fix version issue.
 * v0.3.0, 2 Dec 2020, support loading partials from multiple in-memory tables/directories.
