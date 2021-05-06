@@ -22,9 +22,7 @@ for spec_file in SPEC_FILES:
       for key, partial in spec["partials"].pairs:
         writeFile(fmt"./tests/{key}.mustache", partial.getStr)
     test(spec_file & " - " & name & " - " & desc):
-      let c = newContext(searchDirs = @["./tests"])
-      for key, val in data.pairs:
-        c[key] = val
+      let c = newContext(searchDirs = @["./tests"], values=data.toValues)
       check tpl.render(c) == expected
 
     if spec.hasKey("partials"):
