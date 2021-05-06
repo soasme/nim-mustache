@@ -49,7 +49,7 @@ proc loadPartial*(loader: Loader, filename: string): (bool, string) =
 
   return (false, "")
 
-proc newContext*(searchDirs = @["./"], partials = initTable[string, string]()): Context =
+proc newContext*(searchDirs = @["./"], partials = initTable[string, string](), values = initTable[string,Value]()): Context =
   var loaders: seq[Loader]
 
   if searchDirs.len != 0:
@@ -58,7 +58,7 @@ proc newContext*(searchDirs = @["./"], partials = initTable[string, string]()): 
   if partials.len != 0:
     loaders.add(Loader(kind: lkTable, table: partials))
 
-  Context(values: initTable[string,Value](), loaders: loaders)
+  Context(values: values, loaders: loaders)
 
 proc searchDirs*(c: Context, dirs: seq[string]) =
   c.loaders.add(Loader(kind: lkDir, searchDirs: dirs))
@@ -205,3 +205,8 @@ proc derive*(val: Value, c: Context): Context =
   if val.kind == vkTable:
     for k, val in val.vTable.pairs:
       result[k] = val
+
+proc toValues*(data: JsonNode): Table[string, Value] =
+  assert data.kind == JObject, "JsonNode must be a JObject"
+  for key, val in data.pairs:
+    result[key] = val.castValue

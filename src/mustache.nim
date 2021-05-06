@@ -19,6 +19,7 @@ export parse
 export `$`
 export `[]`
 export `[]=`
+export toValues
 
 when isMainModule:
   var p = initOptParser()
