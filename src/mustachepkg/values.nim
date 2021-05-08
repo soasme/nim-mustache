@@ -207,6 +207,9 @@ proc derive*(val: Value, c: Context): Context =
       result[k] = val
 
 proc toValues*(data: JsonNode): Table[string, Value] =
-  assert data.kind == JObject, "JsonNode must be a JObject"
-  for key, val in data.pairs:
-    result[key] = val.castValue
+  case data.kind:
+  of JObject:
+    for key, val in data.pairs:
+      result[key] = val.castValue
+  else:
+    result["."] = data.castValue
