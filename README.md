@@ -232,5 +232,5 @@ $ nimble test
 
 ## References
 
-* [Spec](https://github.com/mustache/spec)
-* [Syntax](http://mustache.github.com/mustache.5.html)
+* [Spec](https://github.com/mustache/spec) (see also [a document](https://pietroppeter.github.io/nblog/drafts/mustache_specs.html) with the results of running the specs using nim-mustache)
+* [Syntax](http://mustache.github.com/mustache.5.html) (see also [a document](https://pietroppeter.github.io/nimib/mostaccio.html) reproducing the syntax using nim-mustache)
