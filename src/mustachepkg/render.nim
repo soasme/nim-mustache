@@ -1,4 +1,5 @@
 import strutils, strformat, sequtils
+from tables import toTable
 
 import ./errors
 import ./tokens
@@ -102,4 +103,5 @@ method render*(token: Section, ctx: Context): string =
 
   # Non-empty Values
   else:
-    return render(token.children, ctx)
+    var newCtx = {".": val}.toTable.castValue.derive(ctx)
+    return render(token.children, newCtx)

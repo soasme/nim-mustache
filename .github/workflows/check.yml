@@ -1,0 +1,29 @@
+name: test
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    paths-ignore:
+      - "**.md"
+      - "**.rst"
+      - LICENSE
+  push:
+    branches: [main]
+    paths-ignore:
+      - "**.md"
+      - "**.rst"
+      - LICENSE
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: install nim
+      run: export CHOOSENIM_CHOOSE_VERSION="1.0.0" && curl https://nim-lang.org/choosenim/init.sh -sSf > init.sh && sh init.sh -y
+
+    - name: check
+      run: export PATH=$HOME/.nimble/bin:$PATH && nimble test

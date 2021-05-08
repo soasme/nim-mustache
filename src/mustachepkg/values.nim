@@ -129,39 +129,52 @@ proc castValue*(value: JsonNode): Value =
   of JNull:
     result = castValue("")
 
+proc `[]=`*(ctx: Context, key: string, value: Value) =
+  ctx.values[key] = value
+
+proc `[]=`*[T](ctx: Context, key: string, value: T) =
+  ctx.values[key] = value.castValue
+
+proc lookupCtx(ctx: Context, key: string): Context =
+  result = ctx
+  while result != nil:
+    if result.values.contains(key):
+      return result
+    result = result.parent
+
 proc lookup(ctx: Context, key: string): Value =
   if ctx.values.contains(key):
     return ctx.values[key]
 
-  if key.contains("."):
-    var subctx = ctx
-    var found = true
-    for subkey in key.split("."):
-      if result.kind == vkSeq:
-        try:
-          let subidx = subkey.parseInt
-          result = result.vSeq[subidx]
-          subctx = result.derive(subctx)
-          continue
-        except:
-          found = false
-          break
+  try:
+    let subidx = key.parseInt
+    if ctx.values.contains(".") and ctx.values["."].kind == vkSeq:
+      return ctx.values["."].vSeq[subidx]
+  except:
+    discard
 
-      if not subctx.values.contains(subkey):
-        found = false
-        break
+  let dotidx = key.find(".")
+  if dotidx == -1:
+    if ctx.parent == nil:
+      return castValue("")
+    return ctx.parent.lookup(key)
 
-      result = subctx.values[subkey]
-      subctx = result.derive(subctx)
+  let firstKey = key[0..<dotidx]
+  let remainingKeys = key[dotidx+1..<key.len]
+  let firstCtx = lookupCtx(ctx, firstKey)
 
-    if found:
-      return result
-
-  if ctx.parent == nil:
+  if firstCtx == nil:
     return castValue("")
 
-  return ctx.parent.lookup(key)
+  if not firstCtx.values.contains(firstKey):
+    return castValue("")
 
+  let firstValue = firstCtx.values[firstKey]
+
+  var newCtx = Context(parent: nil)
+  newCtx["."] = firstValue
+
+  return lookup(firstValue.derive(newCtx), remainingKeys)
 
 proc `[]`*(ctx: Context, key: string): Value =
   return ctx.lookup(key)
@@ -194,12 +207,6 @@ proc castStr*(value: Value): string =
     "{" & buf.join(",") & "}"
   else: ""
 
-proc `[]=`*(ctx: Context, key: string, value: Value) =
-  ctx.values[key] = value
-
-proc `[]=`*[T](ctx: Context, key: string, value: T) =
-  ctx.values[key] = value.castValue
-
 proc derive*(val: Value, c: Context): Context =
   result = Context(parent: c)
   if val.kind == vkTable:
@@ -207,6 +214,9 @@ proc derive*(val: Value, c: Context): Context =
       result[k] = val
 
 proc toValues*(data: JsonNode): Table[string, Value] =
-  assert data.kind == JObject, "JsonNode must be a JObject"
-  for key, val in data.pairs:
-    result[key] = val.castValue
+  case data.kind:
+  of JObject:
+    for key, val in data.pairs:
+      result[key] = val.castValue
+  else:
+    result["."] = data.castValue
