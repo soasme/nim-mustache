@@ -154,8 +154,10 @@ proc lookup(ctx: Context, key: string): Value =
       result = subctx.values[subkey]
       subctx = result.derive(subctx)
 
-    if found:
-      return result
+    if not found:
+      return castValue("")
+
+    return result
 
   if ctx.parent == nil:
     return castValue("")
