@@ -129,6 +129,12 @@ proc castValue*(value: JsonNode): Value =
   of JNull:
     result = castValue("")
 
+proc `[]=`*(ctx: Context, key: string, value: Value) =
+  ctx.values[key] = value
+
+proc `[]=`*[T](ctx: Context, key: string, value: T) =
+  ctx.values[key] = value.castValue
+
 proc lookupCtx(ctx: Context, key: string): Context =
   result = ctx
   while result != nil:
@@ -140,6 +146,13 @@ proc lookup(ctx: Context, key: string): Value =
   if ctx.values.contains(key):
     return ctx.values[key]
 
+  try:
+    let subidx = key.parseInt
+    if ctx.values.contains(".") and ctx.values["."].kind == vkSeq:
+      return ctx.values["."].vSeq[subidx]
+  except:
+    discard
+
   let dotidx = key.find(".")
   if dotidx == -1:
     if ctx.parent == nil:
@@ -150,17 +163,18 @@ proc lookup(ctx: Context, key: string): Value =
   let remainingKeys = key[dotidx+1..<key.len]
   let firstCtx = lookupCtx(ctx, firstKey)
 
-  echo (key, firstKey, remainingKeys, ctx.values, firstCtx == nil)
-
   if firstCtx == nil:
     return castValue("")
-
-  echo (firstCtx.values)
 
   if not firstCtx.values.contains(firstKey):
     return castValue("")
 
-  return lookup(firstCtx.values[firstKey].derive(nil), remainingKeys)
+  let firstValue = firstCtx.values[firstKey]
+
+  var newCtx = Context(parent: nil)
+  newCtx["."] = firstValue
+
+  return lookup(firstValue.derive(newCtx), remainingKeys)
 
 proc `[]`*(ctx: Context, key: string): Value =
   return ctx.lookup(key)
@@ -192,12 +206,6 @@ proc castStr*(value: Value): string =
       buf.add(fmt"{key}: {val.castStr}")
     "{" & buf.join(",") & "}"
   else: ""
-
-proc `[]=`*(ctx: Context, key: string, value: Value) =
-  ctx.values[key] = value
-
-proc `[]=`*[T](ctx: Context, key: string, value: T) =
-  ctx.values[key] = value.castValue
 
 proc derive*(val: Value, c: Context): Context =
   result = Context(parent: c)
