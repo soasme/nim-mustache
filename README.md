@@ -26,7 +26,7 @@ Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues
 
 ## Getting Started
 
-Nim-mustache requires Nim >= 0.20.
+Nim-mustache requires Nim >= 1.0.0.
 
 ```bash
 $ nimble install mustache
@@ -216,6 +216,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.4.0, 8 May 2021, build on github action && support mustache spec v1.2.1.
 * v0.3.3, 7 May 2021, add optional parameter `values` for `newContext` & support JsonNode as a value.
 * v0.3.2, 25 Jan 2021, support numeric indexing from list using dot syntax.
 * v0.3.1, 24 Jan 2021, fix version issue.
