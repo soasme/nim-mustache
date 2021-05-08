@@ -129,23 +129,38 @@ proc castValue*(value: JsonNode): Value =
   of JNull:
     result = castValue("")
 
+proc lookupCtx(ctx: Context, key: string): Context =
+  result = ctx
+  while result != nil:
+    if result.values.contains(key):
+      return result
+    result = result.parent
+
 proc lookup(ctx: Context, key: string): Value =
   if ctx.values.contains(key):
     return ctx.values[key]
 
-  if key.contains("."):
-    let idx = key.find(".")
-    let firstKey = key[0..<idx]
-    let remainingKeys = key[idx+1..<key.len]
-    if ctx.values.contains(firstKey):
-      return lookup(ctx.values[firstKey].derive(ctx), remainingKeys)
+  let dotidx = key.find(".")
+  if dotidx == -1:
+    if ctx.parent == nil:
+      return castValue("")
+    return ctx.parent.lookup(key)
+
+  let firstKey = key[0..<dotidx]
+  let remainingKeys = key[dotidx+1..<key.len]
+  let firstCtx = lookupCtx(ctx, firstKey)
+
+  echo (key, firstKey, remainingKeys, ctx.values, firstCtx == nil)
+
+  if firstCtx == nil:
     return castValue("")
 
-  if ctx.parent == nil:
+  echo (firstCtx.values)
+
+  if not firstCtx.values.contains(firstKey):
     return castValue("")
 
-  return ctx.parent.lookup(key)
-
+  return lookup(firstCtx.values[firstKey].derive(nil), remainingKeys)
 
 proc `[]`*(ctx: Context, key: string): Value =
   return ctx.lookup(key)
