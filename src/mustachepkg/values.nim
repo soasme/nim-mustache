@@ -134,28 +134,12 @@ proc lookup(ctx: Context, key: string): Value =
     return ctx.values[key]
 
   if key.contains("."):
-    var subctx = ctx
-    var found = true
-    for subkey in key.split("."):
-      if result.kind == vkSeq:
-        try:
-          let subidx = subkey.parseInt
-          result = result.vSeq[subidx]
-          subctx = result.derive(subctx)
-          continue
-        except:
-          found = false
-          break
-
-      if not subctx.values.contains(subkey):
-        found = false
-        break
-
-      result = subctx.values[subkey]
-      subctx = result.derive(subctx)
-
-    if found:
-      return result
+    let idx = key.find(".")
+    let firstKey = key[0..<idx]
+    let remainingKeys = key[idx+1..<key.len]
+    if ctx.values.contains(firstKey):
+      return lookup(ctx.values[firstKey].derive(ctx), remainingKeys)
+    return castValue("")
 
   if ctx.parent == nil:
     return castValue("")
