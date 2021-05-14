@@ -167,3 +167,8 @@ test "render partial from multiple sources":
   c.searchTable(partials1)
   c.searchTable(partials2)
   check s.render(c) == "loaded from: in memory 1"
+
+test "render inheritance - no params":
+  let s = "{{<test}}{{/test}}"
+  let c = newContext(partials = {"test": "hello world"}.toTable())
+  check s.render(c) == "hello world"
