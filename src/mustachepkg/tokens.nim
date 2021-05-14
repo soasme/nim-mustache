@@ -23,6 +23,7 @@ type
 
   SectionOpen* = ref object of Token
     key*: string
+    parent*: bool
     inverted*: bool
 
   SectionClose* = ref object of Token
@@ -36,6 +37,7 @@ type
   Partial* = ref object of Token
     key*: string
     indent*: int
+    children*: seq[Token]
 
   SetDelimiter* = ref object of Token
     delimiter*: Delimiter
