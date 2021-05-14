@@ -29,7 +29,7 @@ proc render*(tokens: seq[Token], ctx: Context): string =
     elif token of SectionClose:
       var close = SectionClose(token)
       if stack.len == 0:
-        raise newException(MustacheError, fmt"early closed: {close.key}")
+        raise newException(MustacheError, fmt"char {close.pos}, early closed: {close.key}.")
 
       var lastSection = stack[stack.len-1]
       if close.key.strip != lastSection.key:
