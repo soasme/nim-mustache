@@ -172,3 +172,8 @@ test "render inheritance - no params":
   let s = "{{<test}}{{/test}}"
   let c = newContext(partials = {"test": "hello world"}.toTable())
   check s.render(c) == "hello world"
+
+test "render inheritance - params":
+  let s = "{{<test}}{{/test}}"
+  let c = newContext(partials = {"test": "{{$foo}}hello world{{/foo}}"}.toTable())
+  check s.render(c) == "hello world"
