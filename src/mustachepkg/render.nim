@@ -15,7 +15,7 @@ proc escape(s: string): string = s.multiReplace([
 
 method render*(token: Token, ctx: Context): string {.base, locks: "unknown".} = ""
 
-proc render*(tokens: seq[Token], ctx: Context): string =
+proc toAst*(tokens: seq[Token]): seq[Token] =
   var stack: seq[Section] = @[]
   for token in tokens:
     if token of SectionOpen:
@@ -39,7 +39,7 @@ proc render*(tokens: seq[Token], ctx: Context): string =
       discard stack.pop()
 
       if stack.len == 0:
-        result.add(lastSection.render(ctx))
+        result.add(lastSection)
       else:
         stack[stack.len-1].children.add(lastSection)
 
@@ -47,7 +47,11 @@ proc render*(tokens: seq[Token], ctx: Context): string =
       stack[stack.len-1].children.add(token)
 
     else:
-      result.add(token.render(ctx))
+      result.add(token)
+
+proc render*(tokens: seq[Token], ctx: Context): string =
+  for token in tokens.toAst:
+    result.add(token.render(ctx))
 
 proc render*(s: string, ctx: Context = newContext()): string =
   s.parse.render(ctx)

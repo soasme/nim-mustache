@@ -25,6 +25,7 @@ type
     key*: string
     parent*: bool
     inverted*: bool
+    children*: seq[Token]
 
   SectionClose* = ref object of Token
     key*: string
