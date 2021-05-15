@@ -151,7 +151,7 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionOpen(key: key.strip, inverted: inverted)
+    token = SectionOpen(key: key.strip, inverted: inverted, parent: parent)
     result = pos - start
   else:
     result = 0

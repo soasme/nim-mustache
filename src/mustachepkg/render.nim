@@ -69,6 +69,11 @@ method render*(token: UnescapedTag, ctx: Context): string =
 
 method render*(token: Partial, ctx: Context): string =
   let s = ctx.read(token.key)
+
+  if token.children.len != 0:
+    result.add(s.parse.render(ctx))
+    return result
+
   var lns: seq[string] = @[]
   for ln in s.splitLines(keepEol=true):
     if ln != "":

@@ -50,11 +50,14 @@ method `$`*(token: Text): string = fmt"<text ""{token.doc}"">"
 method `$`*(token: EscapedTag): string = fmt"<variable {token.key.strip}>"
 
 method `$`*(token: SectionOpen): string =
-  fmt"<section_open {token.key.strip} inverted={token.inverted}>"
+  fmt"<section_open {token.key.strip} inverted={token.inverted} parent={token.parent}>"
 method `$`*(token: SectionClose): string = fmt"<section_close {token.key.strip}>"
 
 method `$`*(token: Partial): string =
   fmt"<partial key={token.key} indent={token.indent}>"
+
+method `$`*(token: Section): string =
+  fmt"<section key={token.key} inverted={token.inverted}>"
 
 method `$`*(token: SetDelimiter): string =
   fmt"<set_delimiter {token.delimiter.open} {token.delimiter.close}>"
