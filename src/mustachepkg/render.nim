@@ -68,20 +68,14 @@ method render*(token: EscapedTag, ctx: Context): string =
 method render*(token: UnescapedTag, ctx: Context): string =
   ctx[token.key].castStr
 
-proc findBlock(parent: Parent, key: string): int =
-  for i, token in parent.children:
-    if Section(token).key == key:
-      return i
-  return -1
-
 proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq[Token]]): seq[Token]
 
 proc recuriveSubstituteToken(ctx: Context, token: Token,
   blocks: var Table[string, seq[Token]]): seq[Token] =
   if token of Parent:
-    result = concat(result, substituteBlocks(ctx, Parent(token), blocks))
+    substituteBlocks(ctx, Parent(token), blocks)
   else:
-    result.add(token)
+    @[token]
 
 proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq[Token]]): seq[Token] =
   for `block` in token.children:
