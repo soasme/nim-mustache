@@ -175,5 +175,10 @@ test "render inheritance - no params":
 
 test "render inheritance - params":
   let s = "{{<test}}{{/test}}"
-  let c = newContext(partials = {"test": "{{$foo}}hello world{{/foo}}"}.toTable())
+  let c = newContext(partials = {"test": "{{$foo}}default{{/foo}}"}.toTable())
+  check s.render(c) == "default"
+
+test "render inheritance - override params":
+  let s = "{{<test}}{{$foo}}hello world{{/foo}}{{/test}}"
+  let c = newContext(partials = {"test": "{{$foo}}default{{/foo}}"}.toTable())
   check s.render(c) == "hello world"
