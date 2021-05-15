@@ -37,9 +37,10 @@ proc toAst*(tokens: seq[Token]): seq[Token] =
       var astToken: Token
       if open.parent:
         let astChildren = open.children.filter(x => x of Section and Section(x).`block`)
-        astToken = Partial(key: open.key, children: open.children)
+        astToken = Parent(key: open.key, children: astChildren)
       else:
-        astToken = Section(key: open.key, inverted: open.inverted, children: open.children)
+        astToken = Section(key: open.key, inverted: open.inverted,
+          children: open.children, `block`: open.`block`)
 
       if stack.len == 0:
         result.add(astToken)
@@ -68,12 +69,27 @@ method render*(token: EscapedTag, ctx: Context): string =
 method render*(token: UnescapedTag, ctx: Context): string =
   ctx[token.key].castStr
 
+proc findBlock(parent: Parent, key: string): int =
+  for i, token in parent.children:
+    if Section(token).key == key:
+      return i
+  return -1
+
+method render*(token: Parent, ctx: Context): string =
+  let s = ctx.read(token.key)
+  let children =  s.parse.toAst.map(proc (x: Token): Token =
+    if x of Section and Section(x).`block`:
+      let i = token.findBlock(Section(x).key)
+      if i == -1:
+        return x
+      else:
+        return token.children[i]
+    return x
+  )
+  result.add(children.render(ctx))
+
 method render*(token: Partial, ctx: Context): string =
   let s = ctx.read(token.key)
-
-  if token.children.len != 0:
-    result.add(s.parse.render(ctx))
-    return result
 
   var lns: seq[string] = @[]
   for ln in s.splitLines(keepEol=true):
@@ -84,6 +100,9 @@ method render*(token: Partial, ctx: Context): string =
 method render*(token: Section, ctx: Context): string =
   let val = ctx[token.key]
   let truthy = val.castBool
+
+  if token.`block`:
+    return token.children.render(ctx)
 
   # Inverted
   if token.inverted:

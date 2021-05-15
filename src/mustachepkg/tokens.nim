@@ -40,6 +40,10 @@ type
   Partial* = ref object of Token
     key*: string
     indent*: int
+
+  Parent* = ref object of Token
+    key*: string
+    indent*: int
     children*: seq[Token]
 
   SetDelimiter* = ref object of Token
@@ -58,8 +62,11 @@ method `$`*(token: SectionClose): string = fmt"<section_close {token.key.strip}>
 method `$`*(token: Partial): string =
   fmt"<partial key={token.key} indent={token.indent}>"
 
+method `$`*(token: Parent): string =
+  fmt"<parent key={token.key} indent={token.indent}>"
+
 method `$`*(token: Section): string =
-  fmt"<section key={token.key} inverted={token.inverted}>"
+  fmt"<section key={token.key} inverted={token.inverted} block={token.`block`}>"
 
 method `$`*(token: SetDelimiter): string =
   fmt"<set_delimiter {token.delimiter.open} {token.delimiter.close}>"
