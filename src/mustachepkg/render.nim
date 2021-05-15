@@ -16,15 +16,11 @@ proc escape(s: string): string = s.multiReplace([
 method render*(token: Token, ctx: Context): string {.base, locks: "unknown".} = ""
 
 proc toAst*(tokens: seq[Token]): seq[Token] =
-  var stack: seq[Section] = @[]
+  var stack: seq[SectionOpen] = @[]
   for token in tokens:
     if token of SectionOpen:
       let open = SectionOpen(token)
-      stack.add(Section(
-        key: open.key,
-        inverted: open.inverted,
-        children: @[]
-      ))
+      stack.add(open)
 
     elif token of SectionClose:
       var close = SectionClose(token)
@@ -38,10 +34,16 @@ proc toAst*(tokens: seq[Token]): seq[Token] =
 
       discard stack.pop()
 
-      if stack.len == 0:
-        result.add(open)
+      var astToken: Token
+      if open.parent:
+        astToken = Partial(key: open.key, children: open.children)
       else:
-        stack[stack.len-1].children.add(open)
+        astToken = Section(key: open.key, inverted: open.inverted, children: open.children)
+
+      if stack.len == 0:
+        result.add(astToken)
+      else:
+        stack[stack.len-1].children.add(astToken)
 
     elif stack.len != 0:
       stack[stack.len-1].children.add(token)
