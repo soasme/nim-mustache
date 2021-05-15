@@ -31,17 +31,17 @@ proc toAst*(tokens: seq[Token]): seq[Token] =
       if stack.len == 0:
         raise newException(MustacheError, fmt"char {close.pos}, early closed: {close.key}.")
 
-      var lastSection = stack[stack.len-1]
-      if close.key.strip != lastSection.key:
+      var open = stack[stack.len-1]
+      if close.key.strip != open.key:
         raise newException(MustacheError,
-          fmt"unmatch section: last open: {lastSection.key}, close: {close.key}")
+          fmt"unmatch section: last open: {open.key}, close: {close.key}")
 
       discard stack.pop()
 
       if stack.len == 0:
-        result.add(lastSection)
+        result.add(open)
       else:
-        stack[stack.len-1].children.add(lastSection)
+        stack[stack.len-1].children.add(open)
 
     elif stack.len != 0:
       stack[stack.len-1].children.add(token)
