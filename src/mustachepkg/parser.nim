@@ -122,13 +122,20 @@ proc scanTripleMustache*(s: string, idx: int, delim: Delimiter, token: var Token
   else:
     result = 0
 
-proc scanInverted*(s: string, idx: int, inverted: var bool): int =
+proc scanSectionMark*(s: string, idx: int, inverted: var bool,
+  parent: var bool, `block`: var bool): int =
   case s[idx]
   of '#':
     inverted = false
     result = 1
   of '^':
     inverted = true
+    result = 1
+  of '<':
+    parent = true
+    result = 1
+  of '$':
+    `block` = true
     result = 1
   else:
     result = 0
@@ -137,17 +144,19 @@ proc scanSectionOpen*(s: string, idx: int, delim: Delimiter, token: var Token): 
   let start = idx
   var pos = idx
   var inverted: bool
+  var parent: bool
+  var `block`: bool
   var key: string
 
   if scanp(
     s, pos,
     (
-      scanInverted($input, $index, inverted),
+      scanSectionMark($input, $index, inverted, parent, `block`),
       *{' ', '\t'},
       parseUntil($input, key, delim.close, $index),
     )
   ):
-    token = SectionOpen(key: key.strip, inverted: inverted)
+    token = SectionOpen(key: key.strip, inverted: inverted, parent: parent, `block`: `block`)
     result = pos - start
   else:
     result = 0

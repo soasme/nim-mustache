@@ -5,6 +5,7 @@
 Nim-mustache is a Nim implementation of Mustache.
 Mustache is a logic-less templating system inspired by ctemplate and et.
 Mustache "emphasizes separating logic from presentation: it is impossible to embed application logic in this template language."
+Nim-mustache is a full implementation of mustache [spec] v1.2.1.
 
 ![Build Status](https://travis-ci.org/soasme/nim-mustache.svg?branch=master)
 
@@ -21,6 +22,7 @@ Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues
 - ✨ Support `{{! Comments }}`.
 - ✨ Support `{{=<% %>=}} <% SetDelimiter %>`.
 - ✨ Support `{{> Partial }}`.
+- ✨ Support Inheritance `{{< Parent}}{{$ foo}}Substitute{{/ foo}}{{/ Parent}}`.
 - ✨ Support Lambda.
 - ✨ Passed all mustache specs.
 
@@ -216,6 +218,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.4.1, 16 May 2021, support mustache inheritance tag.
 * v0.4.0, 8 May 2021, build on github action && support mustache spec v1.2.1.
 * v0.3.3, 7 May 2021, add optional parameter `values` for `newContext` & support JsonNode as a value.
 * v0.3.2, 25 Jan 2021, support numeric indexing from list using dot syntax.
@@ -232,5 +235,9 @@ $ nimble test
 
 ## References
 
-* [Spec](https://github.com/mustache/spec) (see also [a document](https://pietroppeter.github.io/nblog/drafts/mustache_specs.html) with the results of running the specs using nim-mustache)
-* [Syntax](http://mustache.github.com/mustache.5.html) (see also [a document](https://pietroppeter.github.io/nimib/mostaccio.html) reproducing the syntax using nim-mustache)
+* [spec], (see also [a document](https://pietroppeter.github.io/nblog/drafts/mustache_specs.html) with the results of running the specs using nim-mustache)
+* [syntax], (see also [a document](https://pietroppeter.github.io/nimib/mostaccio.html) reproducing the syntax using nim-mustache)
+
+
+[spec]: https://github.com/mustache/spec
+[syntax]: http://mustache.github.com/mustache.5.html
