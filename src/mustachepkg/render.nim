@@ -74,6 +74,15 @@ proc findBlock(parent: Parent, key: string): int =
       return i
   return -1
 
+proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq[Token]]): seq[Token]
+
+proc recuriveSubstituteToken(ctx: Context, token: Token,
+  blocks: var Table[string, seq[Token]]): seq[Token] =
+  if token of Parent:
+    result = concat(result, substituteBlocks(ctx, Parent(token), blocks))
+  else:
+    result.add(token)
+
 proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq[Token]]): seq[Token] =
   for `block` in token.children:
     let section = Section(`block`)
@@ -91,15 +100,9 @@ proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq
         section.children
 
       for x in sbst:
-        if x of Parent:
-          result = concat(result, substituteBlocks(ctx, Parent(x), blocks))
-        else:
-          result.add(x)
-
-    elif child of Parent:
-      result = concat(result, substituteBlocks(ctx, Parent(child), blocks))
+        result = concat(result, recuriveSubstituteToken(ctx, x, blocks))
     else:
-      result.add(child)
+        result = concat(result, recuriveSubstituteToken(ctx, child, blocks))
 
 method render*(token: Parent, ctx: Context): string =
   var blocks = initTable[string, seq[Token]]()
