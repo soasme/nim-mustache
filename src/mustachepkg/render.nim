@@ -24,7 +24,7 @@ proc toAst*(tokens: seq[Token]): seq[Token] =
     elif token of SectionClose:
       var close = SectionClose(token)
       if stack.len == 0:
-        raise newException(MustacheError, fmt"char {close.pos}, early closed: {close.key}.")
+        raise newException(MustacheError, fmt"early closed: {close.key}.")
 
       var open = stack[stack.len-1]
       if close.key.strip != open.key:
