@@ -1,4 +1,4 @@
-import strutils, strformat, sequtils
+import strutils, strformat, sequtils, sugar
 from tables import toTable
 
 import ./errors
@@ -36,6 +36,7 @@ proc toAst*(tokens: seq[Token]): seq[Token] =
 
       var astToken: Token
       if open.parent:
+        let astChildren = open.children.filter(x => x of Section and Section(x).`block`)
         astToken = Partial(key: open.key, children: open.children)
       else:
         astToken = Section(key: open.key, inverted: open.inverted, children: open.children)

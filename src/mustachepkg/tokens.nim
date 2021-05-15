@@ -25,6 +25,7 @@ type
     key*: string
     parent*: bool
     inverted*: bool
+    `block`*: bool
     children*: seq[Token]
 
   SectionClose* = ref object of Token
@@ -33,6 +34,7 @@ type
   Section* = ref object of Token
     key*: string
     inverted*: bool
+    `block`*: bool
     children*: seq[Token]
 
   Partial* = ref object of Token
