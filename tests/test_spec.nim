@@ -8,6 +8,7 @@ const SPEC_FILES = @[
   "./tests/inverted.json",
   "./tests/partials.json",
   "./tests/sections.json",
+  "./tests/~inheritance.json",
 ]
 
 for spec_file in SPEC_FILES:

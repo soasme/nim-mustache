@@ -1,5 +1,4 @@
-import strutils, strformat, sequtils, sugar
-from tables import toTable
+import strutils, strformat, sequtils, sugar, tables
 
 import ./errors
 import ./tokens
@@ -75,18 +74,37 @@ proc findBlock(parent: Parent, key: string): int =
       return i
   return -1
 
-method render*(token: Parent, ctx: Context): string =
+proc substituteBlocks(ctx: Context, token: Parent, blocks: var Table[string, seq[Token]]): seq[Token] =
+  for `block` in token.children:
+    let section = Section(`block`)
+    if not (section.key in blocks):
+      blocks[section.key] = section.children
+
   let s = ctx.read(token.key)
-  let children =  s.parse.toAst.map(proc (x: Token): Token =
-    if x of Section and Section(x).`block`:
-      let i = token.findBlock(Section(x).key)
-      if i == -1:
-        return x
+  for child in s.parse.toAst:
+    if child of Section and Section(child).`block`:
+      let section = Section(child)
+
+      var sbst = if section.key in blocks:
+        blocks[section.key]
       else:
-        return token.children[i]
-    return x
-  )
-  result.add(children.render(ctx))
+        section.children
+
+      for x in sbst:
+        if x of Parent:
+          result = concat(result, substituteBlocks(ctx, Parent(x), blocks))
+        else:
+          result.add(x)
+
+    elif child of Parent:
+      result = concat(result, substituteBlocks(ctx, Parent(child), blocks))
+    else:
+      result.add(child)
+
+method render*(token: Parent, ctx: Context): string =
+  var blocks = initTable[string, seq[Token]]()
+  let children = substituteBlocks(ctx, token, blocks)
+  return children.render(ctx)
 
 method render*(token: Partial, ctx: Context): string =
   let s = ctx.read(token.key)
