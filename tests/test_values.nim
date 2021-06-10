@@ -28,6 +28,21 @@ test "set basic values to context":
   ctx["floatseq"] = @[0.0, 1.0]
   check ctx["floatseq"].castStr == "[0.0,1.0]"
 
+  ctx["i8"] = 0'i8
+  check ctx["i8"].castStr == "0"
+
+  ctx["i16"] = 0'i16
+  check ctx["i16"].castStr == "0"
+
+  ctx["i32"] = 0'i32
+  check ctx["i32"].castStr == "0"
+
+  ctx["i64"] = 0'i64
+  check ctx["i64"].castStr == "0"
+
+  ctx["int"] = 0
+  check ctx["int"].castStr == "0"
+
   ctx["seq"] = @[1,2,3]
   check ctx["seq"].castStr == "[1,2,3]"
   check ctx["seq.0"].castStr == "1"

@@ -82,7 +82,16 @@ proc read*(c: Context, filename: string): string =
 proc castValue*(value: int): Value =
   Value(kind: vkInt, vInt: cast[BiggestInt](value))
 
-proc castValue*(value: BiggestInt): Value =
+proc castValue*(value: int8): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int16): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int32): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int64): Value =
   Value(kind: vkInt, vInt: value)
 
 proc castValue*(value: float32): Value =
