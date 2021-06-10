@@ -218,6 +218,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.4.2, 10 Jun 2021, support casting types float32, float64, int8, int16, int32, int64.
 * v0.4.1, 16 May 2021, support mustache inheritance tag.
 * v0.4.0, 8 May 2021, build on github action && support mustache spec v1.2.1.
 * v0.3.3, 7 May 2021, add optional parameter `values` for `newContext` & support JsonNode as a value.
