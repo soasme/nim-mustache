@@ -3,7 +3,8 @@ import tables, sequtils, strutils, strformat, os, json
 type
   ValueKind* {.pure.}= enum
     vkInt,
-    vkFloat,
+    vkFloat32,
+    vkFloat64,
     vkString,
     vkBool,
     vkProc,
@@ -13,7 +14,8 @@ type
   Value* = object
     case kind*: ValueKind
     of vkInt: vInt*: BiggestInt
-    of vkFloat: vFloat*: float
+    of vkFloat32: vFloat32*: float
+    of vkFloat64: vFloat64*: float
     of vkString: vString*: string
     of vkBool: vBool*: bool
     of vkProc: vProc*: proc(s: string, c: Context): string {.closure.}
@@ -80,11 +82,23 @@ proc read*(c: Context, filename: string): string =
 proc castValue*(value: int): Value =
   Value(kind: vkInt, vInt: cast[BiggestInt](value))
 
-proc castValue*(value: BiggestInt): Value =
+proc castValue*(value: int8): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int16): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int32): Value =
+  Value(kind: vkInt, vInt: cast[BiggestInt](value))
+
+proc castValue*(value: int64): Value =
   Value(kind: vkInt, vInt: value)
 
-proc castValue*(value: float): Value =
-  Value(kind: vkFloat, vFloat: value)
+proc castValue*(value: float32): Value =
+  Value(kind: vkFloat32, vFloat32: value)
+
+proc castValue*(value: float64): Value =
+  Value(kind: vkFloat64, vFloat64: value)
 
 proc castValue*(value: string): Value =
   Value(kind: vkString, vString: value)
@@ -182,7 +196,8 @@ proc `[]`*(ctx: Context, key: string): Value =
 proc castBool*(value: Value): bool =
   case value.kind
   of vkInt: value.vInt != 0
-  of vkFloat: value.vFloat != 0.0
+  of vkFloat32: value.vFloat32 != 0.0
+  of vkFloat64: value.vFloat64 != 0.0
   of vkString: value.vString != ""
   of vkBool: value.vBool
   of vkSeq: value.vSeq.len != 0
@@ -192,7 +207,8 @@ proc castBool*(value: Value): bool =
 proc castStr*(value: Value): string =
   case value.kind
   of vkInt: $(value.vInt)
-  of vkFloat: $(value.vFloat)
+  of vkFloat32: $(value.vFloat32)
+  of vkFloat64: $(value.vFloat64)
   of vkString: value.vString
   of vkBool: $(value.vBool)
   of vkSeq:
