@@ -11,7 +11,7 @@ Nim-mustache is a full implementation of mustache [spec] v1.2.1.
 
 ## Status
 
-Nim-mustache is in beta stage. Welcome to contribute, comment, and report issues. ❤️
+Nim-mustache is stable now. Welcome to contribute, comment, and report issues. ❤️
 
 ## Features
 
