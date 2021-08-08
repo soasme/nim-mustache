@@ -218,6 +218,7 @@ $ nimble test
 
 ## Changelog
 
+* v0.4.3, 9 Aug 2021, export searchDirs & searchTable.
 * v0.4.2, 10 Jun 2021, support casting types float32, float64, int8, int16, int32, int64.
 * v0.4.1, 16 May 2021, support mustache inheritance tag.
 * v0.4.0, 8 May 2021, build on github action && support mustache spec v1.2.1.
