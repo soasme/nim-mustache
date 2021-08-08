@@ -1,6 +1,6 @@
 # Package
 
-version       = "0.4.2"
+version       = "0.4.3"
 author        = "Ju Lin"
 description   = "Mustache in Nim"
 license       = "MIT"
