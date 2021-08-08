@@ -11,6 +11,8 @@ import mustachepkg/render
 
 export Context
 export newContext
+export searchDirs
+export searchTable
 export Value
 export ValueKind
 export castValue
