@@ -58,3 +58,30 @@ test "set basic values to context":
 
   check not ctx["nonExisting"].castBool
 
+type
+  Stock = tuple
+    name: string
+    price: int
+  
+  StockList = tuple
+    stocks: seq[Stock]
+
+proc castValue(value: Stock): Value =
+  let newValue = new(Table[string, Value])
+  result = Value(kind: vkTable, vTable: newValue)
+  for k, v in value.fieldPairs:
+    newValue[k] = v.castValue
+
+proc castValue(value: StockList): Value =
+  let newValue = new(Table[string, Value])
+  result = Value(kind: vkTable, vTable: newValue)
+  for k, v in value.fieldPairs:
+    newValue[k] = v.castValue
+
+test "custom values":
+  let ctx = newContext()
+  let stock: Stock = (name: "NIM", price: 1)
+  ctx["stock"] = stock.castValue
+
+  let stocks: StockList = (stocks: @[stock])
+  ctx["stocks"] = stocks.castValue

@@ -116,7 +116,7 @@ proc castValue*[T](value: Table[string, T]): Value =
   Value(kind: vkTable, vTable: newValue)
 
 proc castValue*[T](value: seq[T]): Value =
-  Value(kind: vkSeq, vSeq: value.map(castValue))
+  Value(kind: vkSeq, vSeq: value.mapIt(it.castValue))
 
 proc castValue*(value: Value): Value = value
 
